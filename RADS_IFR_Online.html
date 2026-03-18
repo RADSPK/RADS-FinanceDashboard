@@ -1,0 +1,2218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Research & Development Solutions - Financial Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <style>
+        /* General Styles */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: #ffffff;
+            color: #000;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* Loading / Splash Screen Styles */
+        .upload-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            text-align: center;
+            background: #f7f7f7;
+        }
+
+        .upload-box {
+            background: #fff;
+            border-radius: 16px;
+            padding: 50px 40px;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            max-width: 480px;
+            width: 100%;
+        }
+
+        .upload-box .brand-logo {
+            width: 72px;
+            height: 72px;
+            background: #860111;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px auto;
+            font-size: 2em;
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .upload-box h1 {
+            font-size: 1.7em;
+            margin-bottom: 8px;
+            color: #111;
+        }
+
+        .upload-box .subtitle {
+            font-size: 0.95em;
+            color: #777;
+            margin-bottom: 30px;
+        }
+
+        .spinner-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 5px solid #e0e0e0;
+            border-top-color: #860111;
+            border-radius: 50%;
+            animation: spin 0.9s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-status {
+            font-size: 1em;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .data-source-tags {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 20px;
+        }
+
+        .data-tag {
+            background: #f0f0f0;
+            border-radius: 20px;
+            padding: 5px 14px;
+            font-size: 0.82em;
+            color: #555;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .data-tag.done {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .data-tag.loading {
+            background: #fff3e0;
+            color: #e65100;
+        }
+
+        .data-tag.error {
+            background: #fdecea;
+            color: #c62828;
+        }
+
+        button#refresh-btn {
+            background-color: #8B1538;
+            color: #fff;
+            border: none;
+            padding: 10px 22px;
+            border-radius: 20px;
+            font-size: 0.95em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button#refresh-btn:hover {
+            background-color: #800020;
+        }
+
+        /* Dashboard Styles */
+        .dashboard-container {
+            display: none;
+            max-width: 1600px;
+            margin: 0 auto;
+            animation: fadeIn 0.6s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header {
+            background: #860111;
+            color: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            color: #fff;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #ddd;
+            font-size: 1.1em;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #707070;
+            border-radius: 12px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .controls label {
+            color: #fff;
+            margin-right: 10px;
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+
+        .controls select {
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .controls select:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .section {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        #executive-summary {
+            background: #363636;
+            color: #fff;
+        }
+        
+        #executive-summary .section-title {
+            color: #fff;
+        }
+        
+        #executive-summary-text, #narrative-analysis-text {
+            color: #fff;
+        }
+        
+        #narrative-analysis {
+            background: #860111;
+            color: #fff;
+        }
+
+        #narrative-analysis .section-title {
+            color: #fff;
+        }
+        
+        #comparison-section {
+            background: #860111;
+            color: #fff;
+        }
+        
+        #comparison-section .section-title {
+            color: #fff;
+        }
+        
+        #income-overview,
+        #expense-overview,
+        #project-breakdown-section,
+        #GBD3-breakdown-section,
+        #PHC-breakdown-section,
+        #orangi-breakdown-section,
+        #nca-breakdown-section,
+        #core-breakdown-section,
+        #financial-breakdown-section,
+        #investment-breakdown-section,
+        #provident-fund-breakdown-section,
+        #budget-variance-section,
+        #yearly-budget-variance-section,
+        #budget-time-utilization-section {
+            background: #ab4e52;
+            color: #fff;
+        }
+
+        #income-overview .section-title,
+        #expense-overview .section-title,
+        #project-breakdown-section .section-title,
+        #GBD3-breakdown-section .section-title,
+        #PHC-breakdown-section .section-title,
+        #orangi-breakdown-section .section-title,
+        #nca-breakdown-section .section-title,
+        #core-breakdown-section .section-title,
+        #financial-breakdown-section .section-title,
+        #investment-breakdown-section .section-title,
+        #provident-fund-breakdown-section .section-title,
+        #budget-variance-section .section-title,
+        #yearly-budget-variance-section .section-title,
+        #budget-time-utilization-section .section-title {
+            color: #fff;
+        }
+        
+        .section-title {
+            color: #333;
+            font-size: 1.8em;
+            margin-bottom: 15px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .chart-container {
+            width: 100%;
+            height: 400px;
+            background: #f9f9f9;
+            border-radius: 10px;
+            padding: 10px;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            background-color: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        th {
+            background-color: #f2f2f2;
+            color: #333;
+            font-weight: bold;
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+            color: #333;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tbody tr:hover {
+            background-color: #cccccc;
+            transition: background-color 0.2s ease;
+        }
+        
+        .clickable-row {
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        
+        .clickable-row:hover {
+            background-color: #cccccc;
+        }
+
+        .metric-card {
+            background: #860111;
+            color: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+        }
+        
+        .metric-card:hover {
+            background: #3d3d3d;
+        }
+
+        .metric-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 5px;
+        }
+
+        .metric-label {
+            color: #ddd;
+            font-size: 1em;
+        }
+
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .comparison-table td, .budget-variance-table td, .yearly-budget-variance-table td {
+            font-weight: bold;
+        }
+
+        .budget-variance-table td:nth-child(4), .yearly-budget-variance-table td:nth-child(4) {
+            color: #f44336;
+        }
+        .budget-variance-table td:nth-child(4).positive, .yearly-budget-variance-table td:nth-child(4).positive {
+            color: #4caf50;
+        }
+
+        #loading-indicator {
+            display: none;
+            text-align: center;
+            color: #555;
+            margin-top: 20px;
+        }
+        
+        #error-message {
+            display: none;
+            text-align: center;
+            color: #f44336;
+            background: rgba(244, 67, 54, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #f44336;
+            margin-bottom: 20px;
+        }
+        
+        .back-btn {
+            background-color: #8B1538;
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+        
+        .back-btn:hover {
+            background-color: #800020;
+        }
+
+        .breakdown-total {
+            background: linear-gradient(135deg, #363636 0%, #2a2a2a 100%);
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            margin-bottom: 25px;
+            border: 2px solid #4a4a4a;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .breakdown-total-value {
+            font-size: 2.8em;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 8px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .breakdown-total-label {
+            font-size: 1.2em;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        /* Modal Overlay */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* Modal Content */
+        .modal-content {
+            background: linear-gradient(135deg, #ab4e52 0%, #8B1538 100%);
+            border-radius: 16px;
+            max-width: 1000px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            animation: slideUp 0.4s ease;
+            position: relative;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 25px 30px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+            position: sticky;
+            top: 0;
+            background: linear-gradient(135deg, #ab4e52 0%, #8B1538 100%);
+            z-index: 10;
+        }
+
+        .modal-title {
+            color: #fff;
+            font-size: 2em;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: #fff;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(90deg);
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        /* Enhanced Table Styling for Modals */
+        .modal-content table {
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-content th {
+            background: linear-gradient(135deg, #363636 0%, #2a2a2a 100%);
+            color: #fff;
+            font-weight: 600;
+            padding: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.9em;
+        }
+
+        .modal-content td {
+            padding: 15px;
+            font-size: 1em;
+        }
+
+        .modal-content tbody tr:hover {
+            background-color: #e8e8e8;
+            transform: scale(1.01);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Scrollbar Styling for Modal */
+        .modal-content::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        .modal-content::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+            .section-title {
+                font-size: 1.5em;
+            }
+            .modal-content {
+                max-width: 95%;
+                max-height: 85vh;
+            }
+            .modal-header {
+                padding: 20px;
+            }
+            .modal-title {
+                font-size: 1.5em;
+            }
+            .modal-body {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="upload-view" class="upload-container">
+        <div class="upload-box">
+            <div class="brand-logo">R</div>
+            <h1>Research &amp; Development Solutions</h1>
+            <p class="subtitle">Financial Dashboard — IFR</p>
+            <div class="spinner-wrap">
+                <div class="spinner"></div>
+                <div class="loading-status" id="loading-status-text">Connecting to Google Sheets…</div>
+            </div>
+            <div id="error-message"></div>
+            <div class="data-source-tags">
+                <div class="data-tag loading" id="tag-income">📊 Income</div>
+                <div class="data-tag loading" id="tag-expense">💸 Expense</div>
+                <div class="data-tag loading" id="tag-balance">🏦 Balance Sheet</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="dashboard-view" class="dashboard-container">
+        <header class="header">
+            <h1>Research &amp; Development Solutions</h1>
+            <p>Financial Snapshot</p>
+            <button id="refresh-btn" onclick="fetchFromGoogleSheets()" style="margin-top:12px;">🔄 Refresh Data</button>
+        </header>
+
+        <div id="loading-indicator">
+            <p>Loading data...</p>
+        </div>
+
+        <div class="controls">
+            <label for="month-selector-1">Select First Month:</label>
+            <select id="month-selector-1" onchange="updateDashboard()"></select>
+            <label for="month-selector-2" style="margin-left: 20px;">Select Second Month:</label>
+            <select id="month-selector-2" onchange="updateDashboard()"></select>
+        </div>
+
+        <section id="executive-summary" class="section">
+            <h2 class="section-title">Executive Summary</h2>
+            <p id="executive-summary-text"></p>
+        </section>
+
+        <section id="key-metrics" class="section">
+            <h2 class="section-title">Key Performance Indicators</h2>
+            <div class="metric-grid">
+                <div class="metric-card" id="income-card">
+                    <div id="total-income-metric" class="metric-value"></div>
+                    <div class="metric-label">Total Income</div>
+                </div>
+                <div class="metric-card" id="expense-card">
+                    <div id="total-expense-metric" class="metric-value"></div>
+                    <div class="metric-label">Total Expense</div>
+                </div>
+                <div class="metric-card" id="net-profit-card">
+                    <div id="net-profit-metric" class="metric-value"></div>
+                    <div class="metric-label">Net Profit / Loss</div>
+                </div>
+                <div class="metric-card" id="profit-margin-card">
+                    <div id="profit-margin-metric" class="metric-value"></div>
+                    <div class="metric-label">Profit Margin</div>
+                </div>
+            </div>
+            <div class="metric-grid">
+                <div class="metric-card" id="project-expense-card">
+                    <div id="total-project-expense-metric" class="metric-value"></div>
+                    <div class="metric-label">Total Project Expenses</div>
+                </div>
+                <div class="metric-card" id="core-expense-card">
+                    <div id="core-expense-metric" class="metric-value"></div>
+                    <div class="metric-label">Core Expenses</div>
+                </div>
+            </div>
+            <div class="metric-grid">
+                <div class="metric-card" id="assets-card">
+                    <div id="total-assets-metric" class="metric-value"></div>
+                    <div class="metric-label">Assets</div>
+                </div>
+                <div class="metric-card" id="liabilities-card">
+                    <div id="total-liabilities-metric" class="metric-value"></div>
+                    <div class="metric-label">Liabilities</div>
+                </div>
+                <div class="metric-card" id="equity-card">
+                    <div id="total-equity-metric" class="metric-value"></div>
+                    <div class="metric-label">Equity</div>
+                </div>
+            </div>
+        </section>
+
+        <section id="narrative-analysis" class="section">
+            <h2 class="section-title">Narrative Analysis</h2>
+            <p id="narrative-analysis-text"></p>
+        </section>
+
+        <!-- Income Modal -->
+        <div id="income-modal" class="modal-overlay">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title" id="income-modal-title">Income Breakdown</h2>
+                    <button class="modal-close" onclick="closeModal('income-modal')">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div id="income-total-display" class="breakdown-total">
+                        <div id="income-total-value" class="breakdown-total-value"></div>
+                        <div class="breakdown-total-label">Total Income</div>
+                    </div>
+                    <table id="income-table">
+                        <thead>
+                            <tr><th>Income Source</th><th>Amount</th><th>% of Total</th></tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Expense Modal -->
+        <div id="expense-modal" class="modal-overlay">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title" id="expense-modal-title">Expense Breakdown</h2>
+                    <button class="modal-close" onclick="closeModal('expense-modal')">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div id="expense-total-display" class="breakdown-total">
+                        <div id="expense-total-value" class="breakdown-total-value"></div>
+                        <div class="breakdown-total-label">Total Expense</div>
+                    </div>
+                    <table id="expense-table">
+                        <thead>
+                            <tr><th>Expense Category</th><th>Amount</th><th>% of Total</th></tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Project Breakdown Modal -->
+        <div id="project-modal" class="modal-overlay">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">Project Expense Breakdown</h2>
+                    <button class="modal-close" onclick="closeModal('project-modal')">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div id="project-total-display" class="breakdown-total">
+                        <div id="project-total-value" class="breakdown-total-value"></div>
+                        <div class="breakdown-total-label">Total Project Expenses</div>
+                    </div>
+                    <table id="project-breakdown-table">
+                        <thead>
+                            <tr><th>Project</th><th>Amount</th><th>% of Total</th></tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Core Expense Modal -->
+        <div id="core-modal" class="modal-overlay">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title" id="core-modal-title">Core Expenses Breakdown</h2>
+                    <button class="modal-close" onclick="closeModal('core-modal')">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div id="core-total-display" class="breakdown-total">
+                        <div id="core-total-value" class="breakdown-total-value"></div>
+                        <div class="breakdown-total-label">Total Core Expenses</div>
+                    </div>
+                    <table id="core-breakdown-table">
+                        <thead>
+                            <tr><th>Expense Category</th><th>Amount</th><th>% of Total</th></tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- GBD3 Project Modal -->
+        <div id="gbd3-modal" class="modal-overlay">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">GBD3 Project Breakdown</h2>
+                    <button class="modal-close" onclick="closeModal('gbd3-modal'); openModal('project-modal')">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div id="GBD3-total-display" class="breakdown-total">
+                        <div id="GBD3-total-value" class="breakdown-total-value"></div>
+                        <div class="breakdown-total-label">GBD3 Project Total</div>
+                    </div>
+                    <table id="GBD3-breakdown-table">
+                        <thead>
+                            <tr><th>Expense Category</th><th>Amount</th><th>% of Total</th></tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- PHC Project Modal -->
+        <div id="phc-modal" class="modal-overlay">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">PHC Project Breakdown</h2>
+                    <button class="modal-close" onclick="closeModal('phc-modal'); openModal('project-modal')">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div id="PHC-total-display" class="breakdown-total">
+                        <div id="PHC-total-value" class="breakdown-total-value"></div>
+                        <div class="breakdown-total-label">PHC Project Total</div>
+                    </div>
+                    <table id="PHC-breakdown-table">
+                        <thead>
+                            <tr><th>Expense Category</th><th>Amount</th><th>% of Total</th></tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Orangi Project Modal -->
+        <div id="orangi-modal" class="modal-overlay">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">Orangi Project Breakdown</h2>
+                    <button class="modal-close" onclick="closeModal('orangi-modal'); openModal('project-modal')">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div id="orangi-total-display" class="breakdown-total">
+                        <div id="orangi-total-value" class="breakdown-total-value"></div>
+                        <div class="breakdown-total-label">Orangi Project Total</div>
+                    </div>
+                    <table id="orangi-breakdown-table">
+                        <thead>
+                            <tr><th>Expense Category</th><th>Amount</th><th>% of Total</th></tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- NCA Project Modal -->
+        <div id="nca-modal" class="modal-overlay">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">NCA Project Breakdown</h2>
+                    <button class="modal-close" onclick="closeModal('nca-modal'); openModal('project-modal')">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div id="nca-total-display" class="breakdown-total">
+                        <div id="nca-total-value" class="breakdown-total-value"></div>
+                        <div class="breakdown-total-label">NCA Project Total</div>
+                    </div>
+                    <table id="nca-breakdown-table">
+                        <thead>
+                            <tr><th>Expense Category</th><th>Amount</th><th>% of Total</th></tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Financial (Assets/Liabilities) Modal -->
+        <div id="financial-modal" class="modal-overlay">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title" id="financial-modal-title">Assets Breakdown</h2>
+                    <button class="modal-close" onclick="closeModal('financial-modal')">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div id="financial-total-display" class="breakdown-total">
+                        <div id="financial-total-value" class="breakdown-total-value"></div>
+                        <div id="financial-total-label" class="breakdown-total-label">Total</div>
+                    </div>
+                    <table id="financial-breakdown-table">
+                        <thead>
+                            <tr><th>Category</th><th>Amount</th></tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Investment Modal -->
+        <div id="investment-modal" class="modal-overlay">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">Investment Breakdown</h2>
+                    <button class="modal-close" onclick="closeModal('investment-modal'); openModal('financial-modal')">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div id="investment-total-display" class="breakdown-total">
+                        <div id="investment-total-value" class="breakdown-total-value"></div>
+                        <div class="breakdown-total-label">Total Investments</div>
+                    </div>
+                    <table id="investment-breakdown-table">
+                        <thead>
+                            <tr><th>Investment Type</th><th>Amount</th><th>% of Total</th></tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Provident Fund Modal -->
+        <div id="provident-modal" class="modal-overlay">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">Provident Fund Payable Breakdown</h2>
+                    <button class="modal-close" onclick="closeModal('provident-modal'); openModal('investment-modal')">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div id="provident-fund-total-display" class="breakdown-total">
+                        <div id="provident-fund-total-value" class="breakdown-total-value"></div>
+                        <div class="breakdown-total-label">Total Provident Fund Payable</div>
+                    </div>
+                    <table id="provident-fund-breakdown-table">
+                        <thead>
+                            <tr><th>Category</th><th>Amount</th></tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <section id="income-overview" class="section" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2 class="section-title" id="income-overview-title" style="margin-bottom: 0;">Income Overview</h2>
+                <button id="back-to-income-btn" class="back-btn" style="display: none;">Back to Total Income</button>
+            </div>
+            <div id="income-total-display" class="breakdown-total">
+                <div id="income-total-value" class="breakdown-total-value"></div>
+                <div class="breakdown-total-label">Total Income</div>
+            </div>
+            <table id="income-table">
+                <thead>
+                    <tr><th>Income Source</th><th>Amount</th><th>% of Total</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </section>
+
+        <section id="expense-overview" class="section" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2 class="section-title" id="expense-overview-title" style="margin-bottom: 0;">Expense Overview</h2>
+                <button id="back-to-expense-btn" class="back-btn" style="display: none;">Back to Total Expense</button>
+            </div>
+            <div id="expense-total-display" class="breakdown-total">
+                <div id="expense-total-value" class="breakdown-total-value"></div>
+                <div class="breakdown-total-label">Total Expense</div>
+            </div>
+            <table id="expense-table">
+                <thead>
+                    <tr><th>Expense Category</th><th>Amount</th><th>% of Total</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </section>
+
+        <section id="project-breakdown-section" class="section" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2 class="section-title" id="project-breakdown-title" style="margin-bottom: 0;">Project Expense Breakdown</h2>
+                <button id="back-to-metrics-btn" class="back-btn">Back to Metrics</button>
+            </div>
+            <div id="project-total-display" class="breakdown-total">
+                <div id="project-total-value" class="breakdown-total-value"></div>
+                <div class="breakdown-total-label">Total Project Expenses</div>
+            </div>
+            <table id="project-breakdown-table">
+                <thead>
+                    <tr><th>Project</th><th>Amount</th><th>% of Total</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </section>
+        
+        <section id="GBD3-breakdown-section" class="section" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2 class="section-title" id="GBD3-breakdown-title" style="margin-bottom: 0;">GBD3 Project Breakdown</h2>
+                <button id="back-to-project-btn-GBD3" class="back-btn">Back to Project Breakdown</button>
+            </div>
+            <div id="GBD3-total-display" class="breakdown-total">
+                <div id="GBD3-total-value" class="breakdown-total-value"></div>
+                <div class="breakdown-total-label">GBD3 Project Total</div>
+            </div>
+            <table id="GBD3-breakdown-table">
+                <thead>
+                    <tr><th>Expense Category</th><th>Amount</th><th>% of Total</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </section>
+
+        <section id="PHC-breakdown-section" class="section" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2 class="section-title" id="PHC-breakdown-title" style="margin-bottom: 0;">PHC Project Breakdown</h2>
+                <button id="back-to-project-btn-PHC" class="back-btn">Back to Project Breakdown</button>
+            </div>
+            <div id="PHC-total-display" class="breakdown-total">
+                <div id="PHC-total-value" class="breakdown-total-value"></div>
+                <div class="breakdown-total-label">PHC Project Total</div>
+            </div>
+            <table id="PHC-breakdown-table">
+                <thead>
+                    <tr><th>Expense Category</th><th>Amount</th><th>% of Total</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </section>
+
+        <section id="orangi-breakdown-section" class="section" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2 class="section-title" id="orangi-breakdown-title" style="margin-bottom: 0;">Orangi Project Breakdown</h2>
+                <button id="back-to-project-btn-orangi" class="back-btn">Back to Project Breakdown</button>
+            </div>
+            <div id="orangi-total-display" class="breakdown-total">
+                <div id="orangi-total-value" class="breakdown-total-value"></div>
+                <div class="breakdown-total-label">Orangi Project Total</div>
+            </div>
+            <table id="orangi-breakdown-table">
+                <thead>
+                    <tr><th>Expense Category</th><th>Amount</th><th>% of Total</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </section>
+
+        <section id="nca-breakdown-section" class="section" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2 class="section-title" id="nca-breakdown-title" style="margin-bottom: 0;">NCA Project Breakdown</h2>
+                <button id="back-to-project-btn-nca" class="back-btn">Back to Project Breakdown</button>
+            </div>
+            <div id="nca-total-display" class="breakdown-total">
+                <div id="nca-total-value" class="breakdown-total-value"></div>
+                <div class="breakdown-total-label">NCA Project Total</div>
+            </div>
+            <table id="nca-breakdown-table">
+                <thead>
+                    <tr><th>Expense Category</th><th>Amount</th><th>% of Total</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </section>
+
+        <section id="core-breakdown-section" class="section" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2 class="section-title" id="core-breakdown-title" style="margin-bottom: 0;">Core Expenses Breakdown</h2>
+                <button id="back-to-metrics-from-core-btn" class="back-btn">Back to Metrics</button>
+            </div>
+            <div id="core-total-display" class="breakdown-total">
+                <div id="core-total-value" class="breakdown-total-value"></div>
+                <div class="breakdown-total-label">Total Core Expenses</div>
+            </div>
+            <table id="core-breakdown-table">
+                <thead>
+                    <tr><th>Expense Category</th><th>Amount</th><th>% of Total</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </section>
+
+        <section id="financial-breakdown-section" class="section" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2 class="section-title" id="financial-breakdown-title"></h2>
+                <button id="back-to-metrics-from-financial-btn" class="back-btn">Back to Metrics</button>
+                <button id="back-to-assets-btn" class="back-btn" style="display:none; margin-left:10px;">Back to Assets Breakdown</button>
+            </div>
+            <div id="financial-total-display" class="breakdown-total">
+                <div id="financial-total-value" class="breakdown-total-value"></div>
+                <div id="financial-total-label" class="breakdown-total-label">Total</div>
+            </div>
+            <table id="financial-breakdown-table">
+                <thead>
+                    <tr><th>Category</th><th>Amount</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </section>
+
+        <section id="investment-breakdown-section" class="section" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2 class="section-title">Investment Breakdown</h2>
+                <button id="back-to-assets-breakdown-btn" class="back-btn">Back to Assets Breakdown</button>
+            </div>
+            <div id="investment-total-display" class="breakdown-total">
+                <div id="investment-total-value" class="breakdown-total-value"></div>
+                <div class="breakdown-total-label">Total Investments</div>
+            </div>
+            <table id="investment-breakdown-table">
+                <thead>
+                    <tr><th>Investment Type</th><th>Amount</th><th>% of Total</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </section>
+
+        <section id="provident-fund-breakdown-section" class="section" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2 class="section-title">Provident Fund Payable Breakdown</h2>
+                <button id="back-to-investment-btn" class="back-btn">Back to Investment Breakdown</button>
+            </div>
+            <div id="provident-fund-total-display" class="breakdown-total">
+                <div id="provident-fund-total-value" class="breakdown-total-value"></div>
+                <div class="breakdown-total-label">Total Provident Fund Payable</div>
+            </div>
+            <table id="provident-fund-breakdown-table">
+                <thead>
+                    <tr><th>Category</th><th>Amount</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </section>
+
+        <section id="narrative-analysis" class="section">
+            <h2 class="section-title">Narrative Analysis</h2>
+            <p id="narrative-analysis-text"></p>
+        </section>
+
+        <section id="comparison-section" class="section">
+            <h2 class="section-title">Month-over-Month Comparison</h2>
+            <table id="comparison-table" class="comparison-table">
+                <thead>
+                    <tr><th>Metric</th><th id="comparison-header-1"></th><th id="comparison-header-2"></th><th>Change</th><th>% Change</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </section>
+
+        <section id="budget-variance-section" class="section">
+            <h2 class="section-title">Monthly Budget Variance</h2>
+            <table id="budget-variance-table" class="budget-variance-table">
+                <thead>
+                    <tr><th>Expense Category</th><th>Budget</th><th>Actual</th><th>Variance</th><th>% Utilization</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </section>
+        
+        <section id="yearly-budget-variance-section" class="section">
+            <h2 class="section-title">Yearly Budget Variance (Annual Comparison)</h2>
+            <table id="yearly-budget-variance-table" class="yearly-budget-variance-table">
+                <thead>
+                    <tr><th>Expense Category</th><th>Full Year Budget</th><th>YTD Actual</th><th>Variance vs. Full Year</th><th>% Utilization (YTD/FY)</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </section>
+
+        <section id="budget-time-utilization-section" class="section">
+            <h2 class="section-title">Budget and Time Utilization (YTD)</h2>
+            <div class="metric-grid">
+                <div class="metric-card" id="budget-utilization-card">
+                    <div id="budget-utilization-metric" class="metric-value"></div>
+                    <div class="metric-label">Total Budget Utilized</div>
+                </div>
+                <div class="metric-card" id="time-utilization-card">
+                    <div id="time-utilization-metric" class="metric-value"></div>
+                    <div class="metric-label">Total Time Utilized</div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // ── Google Sheets CSV URLs ─────────────────────────────────────────────
+        const SHEETS_URLS = {
+            income:       'https://docs.google.com/spreadsheets/d/e/2PACX-1vQT8zwYQmInh9QqsHuohOUXD_V6bQ2bIDPTiENG_tyyV72EKZZ8YWBYLysGud9zb8yD9zYnEodLRwwc/pub?output=csv',
+            expense:      'https://docs.google.com/spreadsheets/d/e/2PACX-1vSqhEeB9A08injwVJGoS6jA5qA_WrO0LX5nzM8B0F_wqqQyJ8TGCjJgeOPaWrP1FM6qO_HAKv7QLKH9/pub?output=csv',
+            balanceSheet: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTGfAncf4H8-615B4qvQf6kho0AUqsAqOcv_YmsxPRjMIkio2_Oy-2SyngdAZWho8AcVXcdxTSMDaGa/pub?output=csv'
+        };
+
+        const uploadView    = document.getElementById('upload-view');
+        const dashboardView = document.getElementById('dashboard-view');
+
+        let incomeData        = [];
+        let expenseData       = [];
+        let balanceSheetData  = [];
+        let months            = [];
+        let expenseHeaders    = [];
+        let balanceSheetHeaders = [];
+        let incomeHeaderKey   = null;
+        let assetsHeaderKey   = null;
+        let liabilitiesHeaderKey = null;
+
+        // ── Tag helper ────────────────────────────────────────────────────────
+        function setTag(id, state) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.className = 'data-tag ' + state;
+        }
+
+        function setStatus(msg) {
+            const el = document.getElementById('loading-status-text');
+            if (el) el.textContent = msg;
+        }
+
+        // ── Fetch a single CSV URL and return text ────────────────────────────
+        async function fetchCSV(url) {
+            // Google Sheets published CSVs are CORS-accessible
+            const resp = await fetch(url, { cache: 'no-store' });
+            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+            return resp.text();
+        }
+
+        // ── Main data loader ──────────────────────────────────────────────────
+        async function fetchFromGoogleSheets() {
+            // Show splash while loading
+            uploadView.style.display  = 'flex';
+            dashboardView.style.display = 'none';
+
+            // Reset tags
+            setTag('tag-income',  'loading');
+            setTag('tag-expense', 'loading');
+            setTag('tag-balance', 'loading');
+            hideMessage('error-message');
+            setStatus('Connecting to Google Sheets…');
+
+            let incomeCsv, expenseCsv, balanceSheetCsv;
+
+            try {
+                setStatus('Fetching Income data…');
+                incomeCsv = await fetchCSV(SHEETS_URLS.income);
+                setTag('tag-income', 'done');
+
+                setStatus('Fetching Expense data…');
+                expenseCsv = await fetchCSV(SHEETS_URLS.expense);
+                setTag('tag-expense', 'done');
+
+                setStatus('Fetching Balance Sheet data…');
+                balanceSheetCsv = await fetchCSV(SHEETS_URLS.balanceSheet);
+                setTag('tag-balance', 'done');
+
+                setStatus('Processing data…');
+            } catch (err) {
+                const failed = !incomeCsv ? 'Income' : !expenseCsv ? 'Expense' : 'Balance Sheet';
+                setTag('tag-' + failed.toLowerCase().replace(' ', '-'), 'error');
+                showMessage('error-message', `Failed to load ${failed} data. Check your Google Sheet sharing settings (must be "Anyone with the link can view") and try again. Error: ${err.message}`, true);
+                setStatus('Error loading data.');
+                return;
+            }
+
+            processFiles(incomeCsv, expenseCsv, balanceSheetCsv);
+            initDashboard();
+        }
+
+        // ── Modal Helper Functions ─────────────────────────────────────────────
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden'; // Prevent background scrolling
+            }
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = 'auto'; // Restore scrolling
+            }
+        }
+
+        function closeAllModals() {
+            const modals = document.querySelectorAll('.modal-overlay');
+            modals.forEach(modal => modal.classList.remove('active'));
+            document.body.style.overflow = 'auto';
+        }
+
+        // Close modal when clicking outside
+        document.addEventListener('click', function(event) {
+            if (event.target.classList.contains('modal-overlay')) {
+                closeAllModals();
+            }
+        });
+
+        // Close modal on ESC key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeAllModals();
+            }
+        });
+
+        // ── Utility Messages ──────────────────────────────────────────────────
+        function showMessage(elementId, message, isError = false) {
+            const el = document.getElementById(elementId);
+            el.textContent = message;
+            el.style.display = 'block';
+            el.style.color = isError ? '#f44336' : '#555';
+        }
+
+        function hideMessage(elementId) {
+            document.getElementById(elementId).style.display = 'none';
+        }
+
+        function parseValue(value) {
+            if (value === null || value === undefined) {
+                return 0;
+            }
+            const stringValue = String(value).trim();
+            if (stringValue === '-' || stringValue === '') {
+                return 0;
+            }
+            const cleanedValue = stringValue.replace(/,/g, '');
+            const num = Number(cleanedValue);
+            return isNaN(num) ? 0 : num;
+        }
+
+        function formatCurrency(value) {
+            if (value === null || value === undefined) return 'N/A';
+            const num = parseValue(value);
+            if (isNaN(num)) return 'N/A';
+            return new Intl.NumberFormat('en-PK', { style: 'currency', currency: 'PKR', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(num);
+        }
+        
+        function formatAbsoluteCurrency(value) {
+            if (value === null || value === undefined) return 'N/A';
+            const num = Math.abs(parseValue(value));
+            if (isNaN(num)) return 'N/A';
+            return new Intl.NumberFormat('en-PK', { style: 'currency', currency: 'PKR', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(num);
+        }
+
+        function formatPercentage(value) {
+            if (isNaN(value)) return 'N/A';
+            return `${value.toFixed(0)}%`;
+        }
+        
+        function formatAbsolutePercentage(value) {
+            if (isNaN(value)) return 'N/A';
+            return `${Math.abs(value).toFixed(0)}%`;
+        }
+
+        function getMonthName(period) {
+            return period.split('-')[0];
+        }
+
+        function populateMonthSelectors() {
+            const selector1 = document.getElementById('month-selector-1');
+            const selector2 = document.getElementById('month-selector-2');
+
+            selector1.innerHTML = '';
+            selector2.innerHTML = '';
+            months.forEach((month, index) => {
+                const option1 = document.createElement('option');
+                option1.value = index;
+                option1.textContent = month;
+                selector1.appendChild(option1);
+
+                const option2 = document.createElement('option');
+                option2.value = index;
+                option2.textContent = month;
+                selector2.appendChild(option2);
+            });
+
+            selector1.value = months.length > 0 ? months.length - 1 : '';
+            selector2.value = months.length > 1 ? months.length - 2 : '';
+        }
+        
+        function findIncomeHeaderKey(dataObject, possibleNames) {
+            if (!dataObject || !possibleNames || possibleNames.length === 0) return null;
+            const headers = Object.keys(dataObject);
+            for (const header of headers) {
+                const normalizedHeader = header.replace(/"/g, '').trim().toLowerCase();
+                for (const name of possibleNames) {
+                    const normalizedName = name.replace(/"/g, '').trim().toLowerCase();
+                    if (normalizedHeader.includes(normalizedName)) {
+                        return header;
+                    }
+                }
+            }
+            return null;
+        }
+
+        function processFiles(incomeCsv, expenseCsv, balanceSheetCsv) {
+            hideMessage('error-message');
+            showMessage('loading-indicator', "Loading data...");
+            Papa.parse(incomeCsv, {
+                header: true,
+                skipEmptyLines: true,
+                complete: function(incomeResults) {
+                    Papa.parse(expenseCsv, {
+                        header: true,
+                        skipEmptyLines: true,
+                        complete: function(expenseResults) {
+                            Papa.parse(balanceSheetCsv, {
+                                header: true,
+                                skipEmptyLines: true,
+                                complete: function(balanceSheetResults) {
+                                    incomeData = incomeResults.data;
+                                    expenseHeaders = Object.keys(expenseResults.data[0]);
+                                    expenseData = expenseResults.data;
+                                    balanceSheetHeaders = Object.keys(balanceSheetResults.data[0]);
+                                    balanceSheetData = balanceSheetResults.data;
+                                    
+                                    Papa.parse(expenseCsv, {
+                                        header: false,
+                                        skipEmptyLines: true,
+                                        complete: function(expResults) {
+                                            expenseHeaders = expResults.data[0];
+                                            expenseData = expResults.data.slice(1);
+                                            
+                                            Papa.parse(balanceSheetCsv, {
+                                                header: false,
+                                                skipEmptyLines: true,
+                                                complete: function(bsResults) {
+                                                    balanceSheetHeaders = bsResults.data[0];
+                                                    balanceSheetData = bsResults.data.slice(1);
+                                                    
+                                                    if (incomeData.length > 0) {
+                                                        incomeHeaderKey = findIncomeHeaderKey(incomeData[0], ['Total Income', 'Income Total']);
+                                                    }
+                                                    
+                                                    if (incomeData.length > 0 && expenseData.length > 0 && balanceSheetData.length > 0 && incomeHeaderKey) {
+                                                        months = incomeData.map(d => d.Period);
+                                                        populateMonthSelectors();
+                                                        uploadView.style.display = 'none';
+                                                        dashboardView.style.display = 'block';
+                                                        updateDashboard();
+                                                        hideMessage('loading-indicator');
+                                                    } else {
+                                                        showMessage('error-message', "Data could not be loaded. Please check your Google Sheets for correct headers ('Period' and 'Total Income').", true);
+                                                        hideMessage('loading-indicator');
+                                                    }
+                                                }
+                                            });
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+        }
+        
+        function updateDashboard() {
+            try {
+                const selectedIndex1 = document.getElementById('month-selector-1').value;
+                const selectedIndex2 = document.getElementById('month-selector-2').value;
+
+                if (selectedIndex1 !== "" && selectedIndex2 !== "") {
+                    populateSummaryTable(selectedIndex1);
+                    populateComparisonTable(selectedIndex1, selectedIndex2);
+                    populateIncomeTable(selectedIndex1);
+                    populateExpenseTable(selectedIndex1);
+                    populateExecutiveSummary(selectedIndex1);
+                    populateNarrativeAnalysis(selectedIndex1, selectedIndex2);
+                    populateBudgetVarianceTable(selectedIndex1);
+                    populateYearlyBudgetVarianceTable(selectedIndex1);
+                    populateBudgetTimeUtilization(selectedIndex1);
+                }
+            } catch (error) {
+                showMessage('error-message', "An error occurred while updating the dashboard. Please check the browser console for details.", true);
+                console.error("An error occurred while updating the dashboard:", error);
+            }
+        }
+
+        function populateSummaryTable(selectedIndex) {
+            const incomeEntry = incomeData[selectedIndex];
+            const incomeTotal = parseValue(incomeEntry ? incomeEntry[incomeHeaderKey] : null);
+
+            const expenseEntry = expenseData[selectedIndex];
+            const GBD3Expense = parseValue(expenseEntry[22]);
+            const PHCExpense = parseValue(expenseEntry[32]);
+            const orangiExpense = parseValue(expenseEntry[42]);
+            const ncaExpense = parseValue(expenseEntry[62]);
+            const coreExpenses = parseValue(expenseEntry[72]);
+            
+            const totalProjectExpense = GBD3Expense + PHCExpense + orangiExpense + ncaExpense;
+            const totalExpense = parseValue(expenseEntry ? expenseEntry[10] : null);
+
+            const balanceSheetEntry = balanceSheetData[selectedIndex];
+            const totalAssets = parseValue(balanceSheetEntry ? balanceSheetEntry[17] : null);
+            const totalLiabilities = parseValue(balanceSheetEntry ? balanceSheetEntry[27] : null);
+            const totalEquity = totalAssets - totalLiabilities;
+
+            const netProfit = incomeTotal - totalExpense;
+            const profitMargin = (netProfit / (incomeTotal || 1)) * 100;
+
+            document.getElementById('total-income-metric').textContent = formatCurrency(incomeTotal);
+            document.getElementById('total-expense-metric').textContent = formatCurrency(totalExpense);
+            document.getElementById('total-project-expense-metric').textContent = formatCurrency(totalProjectExpense);
+            document.getElementById('core-expense-metric').textContent = formatCurrency(coreExpenses);
+            document.getElementById('net-profit-metric').textContent = formatCurrency(netProfit);
+            document.getElementById('profit-margin-metric').textContent = formatPercentage(profitMargin);
+            document.getElementById('total-assets-metric').textContent = formatCurrency(totalAssets);
+            document.getElementById('total-liabilities-metric').textContent = formatCurrency(totalLiabilities);
+            document.getElementById('total-equity-metric').textContent = formatCurrency(totalEquity);
+        }
+
+        function populateComparisonTable(index1, index2) {
+            const tableBody = document.querySelector('#comparison-table tbody');
+            tableBody.innerHTML = '';
+
+            const incomeEntry1 = incomeData[index1];
+            const expenseEntry1 = expenseData[index1];
+            const incomeEntry2 = incomeData[index2];
+            const expenseEntry2 = expenseData[index2];
+
+            const balanceSheetEntry1 = balanceSheetData[index1] || {};
+            const balanceSheetEntry2 = balanceSheetData[index2] || {};
+            
+            document.getElementById('comparison-header-1').textContent = getMonthName(incomeEntry1.Period);
+            document.getElementById('comparison-header-2').textContent = getMonthName(incomeEntry2.Period);
+
+            const income1 = parseValue(incomeEntry1[incomeHeaderKey]);
+            const totalExpense1 = parseValue(expenseEntry1[10]);
+            const assets1 = parseValue(balanceSheetEntry1[17]);
+            const liabilities1 = parseValue(balanceSheetEntry1[27]);
+            const income2 = parseValue(incomeEntry2[incomeHeaderKey]);
+            const totalExpense2 = parseValue(expenseEntry2[10]);
+            const assets2 = parseValue(balanceSheetEntry2[17]);
+            const liabilities2 = parseValue(balanceSheetEntry2[27]);
+
+            const equity1 = assets1 - liabilities1;
+            const equity2 = assets2 - liabilities2;
+
+            const metrics = [
+                { label: 'Total Income', value1: income1, value2: income2 },
+                { label: 'Total Expense', value1: totalExpense1, value2: totalExpense2 },
+                { label: 'Net Profit', value1: income1 - totalExpense1, value2: income2 - totalExpense2 },
+                { label: 'Assets', value1: assets1, value2: assets2 },
+                { label: 'Liabilities', value1: liabilities1, value2: liabilities2 },
+                { label: 'Equity', value1: equity1, value2: equity2 },
+                { label: 'Profit Margin', value1: ((income1 - totalExpense1) / (income1 || 1)) * 100, value2: ((income2 - totalExpense2) / (income2 || 1)) * 100, isPercentage: true },
+            ];
+
+            metrics.forEach(metric => {
+                const change = metric.value1 - metric.value2;
+                const percentChange = (change / (metric.value2 || 1)) * 100;
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${metric.label}</td>
+                    <td>${metric.isPercentage ? formatPercentage(metric.value1) : formatCurrency(metric.value1)}</td>
+                    <td>${metric.isPercentage ? formatPercentage(metric.value2) : formatCurrency(metric.value2)}</td>
+                    <td>${metric.isPercentage ? formatPercentage(change) : formatCurrency(change)}</td>
+                    <td style="color: ${percentChange > 0 ? '#4caf50' : '#f44336'};">${formatPercentage(percentChange)}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function populateIncomeTable(selectedIndex) {
+            const tableBody = document.querySelector('#income-table tbody');
+            tableBody.innerHTML = '';
+            const data = incomeData[selectedIndex];
+            const total = parseValue(data[incomeHeaderKey]);
+
+            const headers = Object.keys(data).filter(h =>
+                h.toLowerCase() !== 'month' &&
+                h.toLowerCase() !== 'period' &&
+                h.toLowerCase() !== 'year' &&
+                h.toLowerCase() !== incomeHeaderKey.toLowerCase()
+            );
+
+            headers.forEach(header => {
+                const value = parseValue(data[header]);
+                const percentage = (value / (total || 1)) * 100;
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${header.replace(' Income', '')}</td>
+                    <td>${formatCurrency(value)}</td>
+                    <td>${formatPercentage(percentage)}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function populateExpenseTable(selectedIndex) {
+            const tableBody = document.querySelector('#expense-table tbody');
+            tableBody.innerHTML = '';
+            const data = expenseData[selectedIndex];
+            const total = parseValue(data[10]);
+            
+            const expenseBreakdownColumns = [1,2,3,4,5,6,7,8,9];
+
+            expenseBreakdownColumns.forEach(index => {
+                const header = expenseHeaders[index];
+                const value = parseValue(data[index]);
+                const percentage = (value / (total || 1)) * 100;
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${header}</td>
+                    <td>${formatCurrency(value)}</td>
+                    <td>${formatPercentage(percentage)}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function populateCoreExpenseTable(selectedIndex) {
+            const tableBody = document.querySelector('#core-breakdown-table tbody');
+            tableBody.innerHTML = '';
+            const data = expenseData[selectedIndex];
+            
+            const coreExpenseColumns = [63, 64, 65, 66, 67, 68, 69, 70, 71];
+            const coreTotal = parseValue(data[72]);
+
+            coreExpenseColumns.forEach(index => {
+                const header = expenseHeaders[index];
+                const value = parseValue(data[index]);
+                const percentage = (value / (coreTotal || 1)) * 100;
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${header}</td>
+                    <td>${formatCurrency(value)}</td>
+                    <td>${formatPercentage(percentage)}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function populateExecutiveSummary(selectedIndex) {
+            const incomeEntry = incomeData[selectedIndex];
+            const incomeTotal = parseValue(incomeEntry ? incomeEntry[incomeHeaderKey] : null);
+
+            const expenseEntry = expenseData[selectedIndex];
+            const GBD3Expense = parseValue(expenseEntry[22]);
+            const PHCExpense = parseValue(expenseEntry[32]);
+            const orangiExpense = parseValue(expenseEntry[42]);
+            const ncaExpense = parseValue(expenseEntry[62]);
+            
+            const totalProjectExpense = GBD3Expense + PHCExpense + orangiExpense + ncaExpense;
+            const totalExpense = parseValue(expenseEntry ? expenseEntry[10] : null);
+            const netProfit = incomeTotal - totalExpense;
+            const profitMargin = ((netProfit / (incomeTotal || 1)) * 100).toFixed(0);
+
+            const balanceSheetEntry = balanceSheetData[selectedIndex];
+            const totalAssets = parseValue(balanceSheetEntry ? balanceSheetEntry[17] : null);
+            const totalLiabilities = parseValue(balanceSheetEntry ? balanceSheetEntry[27] : null);
+            const totalEquity = totalAssets - totalLiabilities;
+
+            let summaryText;
+            if (netProfit >= 0) {
+                summaryText = `In ${incomeEntry.Period}, the company achieved a total income of ${formatCurrency(incomeTotal)}, with total expenses amounting to ${formatCurrency(totalExpense)}, which includes project expenses of ${formatCurrency(totalProjectExpense)}. This resulted in a net profit of ${formatCurrency(netProfit)}, reflecting a healthy profit margin of ${profitMargin}%. On the balance sheet, the company reports total assets of ${formatCurrency(totalAssets)}, total liabilities of ${formatCurrency(totalLiabilities)}, and an equity of ${formatCurrency(totalEquity)}. The company's financial position remains strong, demonstrating effective revenue generation and cost management.`;
+            } else {
+                summaryText = `In ${incomeEntry.Period}, the company achieved a total income of ${formatCurrency(incomeTotal)}, with total expenses amounting to ${formatCurrency(totalExpense)}, which includes project expenses of ${formatCurrency(totalProjectExpense)}. This resulted in a net loss of ${formatCurrency(Math.abs(netProfit))}, reflecting a loss margin of ${Math.abs(profitMargin)}%. On the balance sheet, the company reports total assets of ${formatCurrency(totalAssets)}, total liabilities of ${formatCurrency(totalLiabilities)}, and an equity of ${formatCurrency(totalEquity)}.`;
+            }
+            
+            document.getElementById('executive-summary-text').textContent = summaryText;
+        }
+
+        function populateNarrativeAnalysis(selectedIndex1, selectedIndex2) {
+            const incomeEntry1 = incomeData[selectedIndex1];
+            const expenseEntry1 = expenseData[selectedIndex1];
+            const incomeEntry2 = incomeData[selectedIndex2];
+            const expenseEntry2 = expenseData[selectedIndex2];
+
+            const netProfit1 = parseValue(incomeEntry1[incomeHeaderKey]) - parseValue(expenseEntry1[10]);
+            const netProfit2 = parseValue(incomeEntry2[incomeHeaderKey]) - parseValue(expenseEntry2[10]);
+            const profitChange = netProfit1 - netProfit2;
+            const profitPercentChange = ((profitChange / (netProfit2 || 1)) * 100).toFixed(0);
+
+            const narrativeText = `Comparing ${incomeEntry1.Period} to ${incomeEntry2.Period}, the company saw a net profit change of ${formatCurrency(profitChange)}, a ${profitChange > 0 ? 'increase' : 'decrease'}. This shift was primarily driven by changes in key income and expense streams. A detailed breakdown shows a change in key areas, requiring further analysis to pinpoint the exact drivers of profitability and efficiency.`;
+            document.getElementById('narrative-analysis-text').textContent = narrativeText;
+        }
+
+        function showInvestmentBreakdown(selectedIndex) {
+            const balanceSheetEntry = balanceSheetData[selectedIndex];
+            const totalInvestment = parseValue(balanceSheetEntry[14]);
+            const providentFundPayable = parseValue(balanceSheetEntry[23]);
+            const coreInvestments = totalInvestment - providentFundPayable;
+
+            // Display total
+            document.getElementById('investment-total-value').textContent = formatCurrency(totalInvestment);
+
+            const tableBody = document.querySelector('#investment-modal .modal-body #investment-breakdown-table tbody');
+            tableBody.innerHTML = '';
+
+            const investments = [
+                { name: 'Provident Fund Payable', amount: providentFundPayable, clickable: true },
+                { name: 'Core Investments', amount: coreInvestments }
+            ];
+
+            investments.forEach(investment => {
+                const percentage = (investment.amount / (totalInvestment || 1)) * 100;
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${investment.name}</td>
+                    <td>${formatCurrency(investment.amount)}</td>
+                    <td>${formatPercentage(percentage)}</td>
+                `;
+                if (investment.clickable) {
+                    row.classList.add('clickable-row');
+                    row.dataset.type = 'provident-fund';
+                }
+                tableBody.appendChild(row);
+            });
+
+            closeModal('financial-modal');
+            openModal('investment-modal');
+        }
+
+        function hideInvestmentBreakdown() {
+            closeModal('investment-modal');
+        }
+
+        function showProvidentFundBreakdown(selectedIndex) {
+            const balanceSheetEntry = balanceSheetData[selectedIndex];
+            const drAdnan = parseValue(balanceSheetEntry[31]);
+            const staff = parseValue(balanceSheetEntry[32]);
+            const totalProvidentFund = parseValue(balanceSheetEntry[23]);
+
+            // Display total
+            document.getElementById('provident-fund-total-value').textContent = formatCurrency(totalProvidentFund);
+
+            const tableBody = document.querySelector('#provident-modal .modal-body #provident-fund-breakdown-table tbody');
+            tableBody.innerHTML = '';
+
+            const items = [
+                { label: 'Dr. Adnan', amount: drAdnan },
+                { label: 'Staff', amount: staff }
+            ];
+
+            items.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.label}</td>
+                    <td>${formatCurrency(item.amount)}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+
+            closeModal('investment-modal');
+            openModal('provident-modal');
+        }
+
+        function hideProvidentFundBreakdown() {
+            closeModal('provident-modal');
+            const selectedIndex = document.getElementById('month-selector-1').value;
+            showInvestmentBreakdown(selectedIndex);
+        }
+
+        function showIncomeBreakdown() {
+            const selectedIndex = document.getElementById('month-selector-1').value;
+            const incomeEntry = incomeData[selectedIndex];
+            const period = incomeEntry.Period;
+            const total = parseValue(incomeEntry[incomeHeaderKey]);
+
+            // Display total
+            document.getElementById('income-total-value').textContent = formatCurrency(total);
+            document.getElementById('income-modal-title').textContent = `Income Breakdown for ${period}`;
+
+            populateIncomeTable(selectedIndex);
+            openModal('income-modal');
+        }
+
+        function hideIncomeBreakdown() {
+            closeModal('income-modal');
+        }
+
+        function showExpenseBreakdown() {
+            const selectedIndex = document.getElementById('month-selector-1').value;
+            const expenseEntry = expenseData[selectedIndex];
+            const period = incomeData[selectedIndex].Period;
+            const total = parseValue(expenseEntry[10]);
+
+            // Display total
+            document.getElementById('expense-total-value').textContent = formatCurrency(total);
+            document.getElementById('expense-modal-title').textContent = `Total Expense Breakdown for ${period}`;
+            
+            populateExpenseTable(selectedIndex);
+            openModal('expense-modal');
+        }
+        
+        function showCoreExpenseBreakdown() {
+            const selectedIndex = document.getElementById('month-selector-1').value;
+            const expenseEntry = expenseData[selectedIndex];
+            const period = incomeData[selectedIndex].Period;
+            const coreTotal = parseValue(expenseEntry[72]);
+
+            // Display total
+            document.getElementById('core-total-value').textContent = formatCurrency(coreTotal);
+            document.getElementById('core-modal-title').textContent = `Core Expense Breakdown for ${period}`;
+
+            populateCoreExpenseTable(selectedIndex);
+            openModal('core-modal');
+        }
+
+        function hideCoreExpenseBreakdown() {
+            closeModal('core-modal');
+        }
+
+        function hideExpenseBreakdown() {
+            closeModal('expense-modal');
+        }
+
+        function showProjectBreakdown() {
+            const selectedIndex = document.getElementById('month-selector-1').value;
+            const expenseEntry = expenseData[selectedIndex];
+            
+            const GBD3Expense = parseValue(expenseEntry[22]);
+            const PHCExpense = parseValue(expenseEntry[32]);
+            const orangiExpense = parseValue(expenseEntry[42]);
+            const ncaExpense = parseValue(expenseEntry[62]);
+            
+            const totalProjectExpense = GBD3Expense + PHCExpense + orangiExpense + ncaExpense;
+
+            // Display total
+            document.getElementById('project-total-value').textContent = formatCurrency(totalProjectExpense);
+
+            const tableBody = document.querySelector('#project-modal .modal-body #project-breakdown-table tbody');
+            tableBody.innerHTML = '';
+            
+            const projects = [
+                { name: 'GBD3 Project', amount: GBD3Expense },
+                { name: 'PHC Project', amount: PHCExpense },
+                { name: 'Orangi Project', amount: orangiExpense },
+                { name: 'NCA Project', amount: ncaExpense }
+            ];
+            
+            const nonZeroProjects = projects.filter(p => p.amount > 0);
+
+            nonZeroProjects.forEach(project => {
+                const percentage = (project.amount / (totalProjectExpense || 1)) * 100;
+                const row = document.createElement('tr');
+                row.className = 'clickable-row';
+                row.dataset.project = project.name;
+                row.innerHTML = `
+                    <td>${project.name}</td>
+                    <td>${formatCurrency(project.amount)}</td>
+                    <td>${formatPercentage(percentage)}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+
+            openModal('project-modal');
+        }
+
+        function hideProjectBreakdown() {
+            closeModal('project-modal');
+        }
+        
+        function showSpecificProjectBreakdown(projectName) {
+            const selectedIndex = document.getElementById('month-selector-1').value;
+            const expenseEntry = expenseData[selectedIndex];
+            
+            const GBD3Expense = parseValue(expenseEntry[22]);
+            const PHCExpense = parseValue(expenseEntry[32]);
+            const orangiExpense = parseValue(expenseEntry[42]);
+            const ncaExpense = parseValue(expenseEntry[62]);
+            
+            let tableBody;
+            let breakdownColumns;
+            let total;
+            let startIndex;
+            let modalId;
+
+            if (projectName === 'GBD3 Project') {
+                tableBody = document.querySelector('#gbd3-modal .modal-body #GBD3-breakdown-table tbody');
+                modalId = 'gbd3-modal';
+                startIndex = 13;
+                breakdownColumns = expenseHeaders.slice(startIndex, 22);
+                total = GBD3Expense;
+                document.getElementById('GBD3-total-value').textContent = formatCurrency(total);
+
+            } else if (projectName === 'PHC Project') {
+                tableBody = document.querySelector('#phc-modal .modal-body #PHC-breakdown-table tbody');
+                modalId = 'phc-modal';
+                startIndex = 23;
+                breakdownColumns = expenseHeaders.slice(startIndex, 32);
+                total = PHCExpense;
+                document.getElementById('PHC-total-value').textContent = formatCurrency(total);
+
+            } else if (projectName === 'Orangi Project') {
+                tableBody = document.querySelector('#orangi-modal .modal-body #orangi-breakdown-table tbody');
+                modalId = 'orangi-modal';
+                startIndex = 33;
+                breakdownColumns = expenseHeaders.slice(startIndex, 42);
+                total = orangiExpense;
+                document.getElementById('orangi-total-value').textContent = formatCurrency(total);
+                
+            } else if (projectName === 'NCA Project') {
+                tableBody = document.querySelector('#nca-modal .modal-body #nca-breakdown-table tbody');
+                modalId = 'nca-modal';
+                startIndex = 54;
+                breakdownColumns = expenseHeaders.slice(startIndex, 63);
+                total = ncaExpense;
+                document.getElementById('nca-total-value').textContent = formatCurrency(total);
+            } else {
+                return;
+            }
+
+            
+            tableBody.innerHTML = '';
+            
+            breakdownColumns.forEach((header, index) => {
+                const dataIndex = startIndex + index;
+                const value = parseValue(expenseEntry[dataIndex]);
+                
+                const percentage = (value / (total || 1)) * 100;
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${header}</td>
+                    <td>${formatCurrency(value)}</td>
+                    <td>${formatPercentage(percentage)}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+
+            closeModal('project-modal');
+            openModal(modalId);
+        }
+
+        function hideSpecificProjectBreakdown() {
+             closeModal('gbd3-modal');
+             closeModal('phc-modal');
+             closeModal('orangi-modal');
+             closeModal('nca-modal');
+        }
+
+        function showFinancialBreakdown(type) {
+            const selectedIndex = document.getElementById('month-selector-1').value;
+            const balanceSheetEntry = balanceSheetData[selectedIndex];
+            const tableBody = document.querySelector('#financial-modal .modal-body #financial-breakdown-table tbody');
+            tableBody.innerHTML = '';
+
+            let items = [];
+            let title = '';
+            let total = 0;
+
+            if (type === 'assets') {
+                title = 'Assets Breakdown';
+                total = parseValue(balanceSheetEntry[17]);
+                items = [
+                    { label: 'Tangible Assets', index: 3 },
+                    { label: 'Intangible Assets', index: 6 },
+                    { label: 'Banks', index: 9 },
+                    { label: 'Receivables', index: 10 },
+                    { label: 'Investments', index: 14, clickable: true },
+                    { label: 'Advance Tax', index: 15 }
+                ];
+            } else if (type === 'liabilities') {
+                title = 'Liabilities Breakdown';
+                total = parseValue(balanceSheetEntry[27]);
+                items = [
+                    { label: 'Salaries Payable', index: 21 },
+                    { label: 'Deferred Income', index: 22 },
+                    { label: 'Provident Fund Liability', index: 23 },
+                    { label: 'Income Tax Payable', index: 24 },
+                    { label: 'Other Payable', index: 25 }
+                ];
+            }
+
+            // Display total
+            document.getElementById('financial-total-value').textContent = formatCurrency(total);
+            document.getElementById('financial-total-label').textContent = type === 'assets' ? 'Total Assets' : 'Total Liabilities';
+
+            document.getElementById('financial-modal-title').textContent = title;
+            items.forEach(item => {
+                const value = parseValue(balanceSheetEntry[item.index]);
+                const row = document.createElement('tr');
+                row.innerHTML = `<td>${item.label}</td><td>${formatCurrency(value)}</td>`;
+                if (item.clickable) {
+                    row.classList.add('clickable-row');
+                    row.dataset.type = 'investments';
+                }
+                tableBody.appendChild(row);
+            });
+
+            openModal('financial-modal');
+        }
+
+        function hideFinancialBreakdown() {
+            closeModal('financial-modal');
+        }
+
+        function populateBudgetVarianceTable(selectedIndex) {
+            const tableBody = document.querySelector('#budget-variance-table tbody');
+            tableBody.innerHTML = '';
+            
+            const data = expenseData[selectedIndex];
+
+            const actualColumns = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+            const budgetColumns = [43, 44, 45, 46, 47, 48, 49, 50, 51];
+
+            const expenseCategories = actualColumns.map(index => expenseHeaders[index]);
+
+            expenseCategories.forEach((category, i) => {
+                const actual = parseValue(data[actualColumns[i]]);
+                const budget = parseValue(data[budgetColumns[i]]);
+                const variance = actual - budget;
+                const budgetUtilizedPercent = (actual / (budget || 1)) * 100;
+
+                const row = document.createElement('tr');
+                
+                row.innerHTML = `
+                    <td>${category}</td>
+                    <td>${formatCurrency(budget)}</td>
+                    <td>${formatCurrency(actual)}</td>
+                    <td class="${variance > 0 ? '' : 'positive'}">${formatAbsoluteCurrency(variance)}</td>
+                    <td>${formatPercentage(budgetUtilizedPercent)}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+            
+            const totalActual = parseValue(data[10]);
+            const totalBudget = parseValue(data[52]); 
+            const totalVariance = totalActual - totalBudget;
+            const totalBudgetUtilizedPercent = (totalActual / (totalBudget || 1)) * 100;
+
+            const totalRow = document.createElement('tr');
+            totalRow.innerHTML = `
+                <td><b>Total</b></td>
+                <td><b>${formatCurrency(totalBudget)}</b></td>
+                <td><b>${formatCurrency(totalActual)}</b></td>
+                <td class="${totalVariance > 0 ? '' : 'positive'}"><b>${formatAbsoluteCurrency(totalVariance)}</b></td>
+                <td><b>${formatPercentage(totalBudgetUtilizedPercent)}</b></td>
+            `;
+            tableBody.appendChild(totalRow);
+        }
+
+        function populateYearlyBudgetVarianceTable(selectedIndex) {
+            const tableBody = document.querySelector('#yearly-budget-variance-table tbody');
+            tableBody.innerHTML = '';
+            
+            const fiscalYearStartPeriod = 'Jul-25';
+            let fiscalYearStartIndex = months.indexOf(fiscalYearStartPeriod);
+
+            if (fiscalYearStartIndex === -1) {
+                console.warn(`Fiscal Year start period ${fiscalYearStartPeriod} not found. Starting YTD Actuals from index 0.`);
+                fiscalYearStartIndex = 0;
+            }
+            
+            const fiscalYearEndPeriod = 'Jun-26';
+            let fiscalYearEndIndex = months.indexOf(fiscalYearEndPeriod);
+            if (fiscalYearEndIndex === -1) {
+                fiscalYearEndIndex = expenseData.length - 1;
+            }
+            const budgetLoopLimit = Math.min(expenseData.length - 1, fiscalYearEndIndex);
+            
+            const actualColumns = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+            const budgetColumns = [43, 44, 45, 46, 47, 48, 49, 50, 51];
+            const totalActualIndex = 10;
+            const totalBudgetIndex = 52; 
+
+            const ytdActuals = new Array(actualColumns.length).fill(0);
+            const fullYearBudgets = new Array(budgetColumns.length).fill(0); 
+            let ytdTotalActual = 0;
+            let fullYearTotalBudget = 0;
+
+            for (let i = fiscalYearStartIndex; i <= selectedIndex; i++) {
+                const monthData = expenseData[i];
+                
+                actualColumns.forEach((colIndex, j) => {
+                    ytdActuals[j] += parseValue(monthData[colIndex]);
+                });
+
+                ytdTotalActual += parseValue(monthData[totalActualIndex]);
+            }
+            
+            for (let i = fiscalYearStartIndex; i <= budgetLoopLimit; i++) {
+                const monthData = expenseData[i];
+
+                budgetColumns.forEach((colIndex, j) => {
+                    fullYearBudgets[j] += parseValue(monthData[budgetColumns[j]]);
+                });
+
+                fullYearTotalBudget += parseValue(monthData[totalBudgetIndex]);
+            }
+
+            const expenseCategories = actualColumns.map(index => expenseHeaders[index]);
+
+            expenseCategories.forEach((category, i) => {
+                const actual = ytdActuals[i];
+                const budget = fullYearBudgets[i];
+                const variance = actual - budget;
+                const budgetUtilizedPercent = (actual / (budget || 1)) * 100;
+
+                const row = document.createElement('tr');
+                
+                row.innerHTML = `
+                    <td>${category}</td>
+                    <td>${formatCurrency(budget)}</td>
+                    <td>${formatCurrency(actual)}</td>
+                    <td class="${variance > 0 ? '' : 'positive'}">${formatAbsoluteCurrency(variance)}</td>
+                    <td>${formatPercentage(budgetUtilizedPercent)}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+            
+            const totalRow = document.createElement('tr');
+            const totalVariance = ytdTotalActual - fullYearTotalBudget;
+            const totalBudgetUtilizedPercent = (ytdTotalActual / (fullYearTotalBudget || 1)) * 100;
+
+            totalRow.innerHTML = `
+                <td><b>Total Annual Comparison</b></td>
+                <td><b>${formatCurrency(fullYearTotalBudget)}</b></td>
+                <td><b>${formatCurrency(ytdTotalActual)}</b></td>
+                <td class="${totalVariance > 0 ? '' : 'positive'}"><b>${formatAbsoluteCurrency(totalVariance)}</b></td>
+                <td><b>${formatPercentage(totalBudgetUtilizedPercent)}</b></td>
+            `;
+            tableBody.appendChild(totalRow);
+        }
+
+        function populateBudgetTimeUtilization(selectedIndex) {
+            const fiscalYearStartPeriod = 'Jul-25';
+            const totalFYMonths = 12;
+            const fiscalYearStartIndex = months.indexOf(fiscalYearStartPeriod);
+
+            if (fiscalYearStartIndex === -1 || Number(selectedIndex) < fiscalYearStartIndex) {
+                document.getElementById('budget-utilization-metric').textContent = formatPercentage(0);
+                document.getElementById('time-utilization-metric').textContent = formatPercentage(0);
+                document.getElementById('budget-utilization-card').style.backgroundColor = '#860111';
+                document.getElementById('time-utilization-card').style.backgroundColor = '#860111';
+                return;
+            }
+
+            const monthsElapsed = Number(selectedIndex) - fiscalYearStartIndex + 1;
+            const timeUtilized = (monthsElapsed / totalFYMonths) * 100;
+
+            const totalActualIndex = 10;
+            const totalBudgetIndex = 52;
+            let ytdTotalActual = 0;
+            let fullYearTotalBudget = 0;
+            
+            for (let i = fiscalYearStartIndex; i <= Number(selectedIndex); i++) {
+                ytdTotalActual += parseValue(expenseData[i][totalActualIndex]);
+            }
+            
+            const fiscalYearEndPeriod = 'Jun-26';
+            let fiscalYearEndIndex = months.indexOf(fiscalYearEndPeriod);
+            
+            const budgetLoopLimit = (fiscalYearEndIndex !== -1 && fiscalYearEndIndex >= fiscalYearStartIndex) 
+                                    ? fiscalYearEndIndex 
+                                    : expenseData.length - 1;
+            
+            for (let i = fiscalYearStartIndex; i <= budgetLoopLimit; i++) {
+                fullYearTotalBudget += parseValue(expenseData[i][totalBudgetIndex]);
+            }
+
+            const budgetUtilized = (ytdTotalActual / (fullYearTotalBudget || 1)) * 100;
+
+            document.getElementById('budget-utilization-metric').textContent = formatPercentage(budgetUtilized);
+            document.getElementById('time-utilization-metric').textContent = formatPercentage(timeUtilized);
+            
+            const budgetCard = document.getElementById('budget-utilization-card');
+            const timeCard = document.getElementById('time-utilization-card');
+
+            timeCard.style.backgroundColor = '#27ae60';
+
+            if (budgetUtilized > timeUtilized + 5) { 
+                budgetCard.style.backgroundColor = '#e74c3c';
+            } else if (budgetUtilized > timeUtilized) {
+                budgetCard.style.backgroundColor = '#f39c12';
+            } else if (budgetUtilized < timeUtilized - 5) { 
+                budgetCard.style.backgroundColor = '#1abc9c';
+            } else {
+                budgetCard.style.backgroundColor = '#27ae60';
+            }
+        }
+
+        function initDashboard() {
+            document.getElementById('income-card').addEventListener('click', showIncomeBreakdown);
+            document.getElementById('expense-card').addEventListener('click', showExpenseBreakdown);
+            document.getElementById('core-expense-card').addEventListener('click', showCoreExpenseBreakdown);
+            document.getElementById('project-expense-card').addEventListener('click', showProjectBreakdown);
+            document.getElementById('assets-card').addEventListener('click', () => showFinancialBreakdown('assets'));
+            document.getElementById('liabilities-card').addEventListener('click', () => showFinancialBreakdown('liabilities'));
+            
+
+
+            // Modal event listeners
+            document.querySelector('#project-modal .modal-body #project-breakdown-table').addEventListener('click', (e) => {
+                const row = e.target.closest('.clickable-row');
+                if (row) {
+                    const projectName = row.dataset.project;
+                    showSpecificProjectBreakdown(projectName);
+                }
+            });
+
+            document.querySelector('#financial-modal .modal-body #financial-breakdown-table').addEventListener('click', (e) => {
+                const row = e.target.closest('.clickable-row');
+                if (row && row.dataset.type === 'investments') {
+                    const selectedIndex = document.getElementById('month-selector-1').value;
+                    showInvestmentBreakdown(selectedIndex);
+                }
+            });
+
+            document.querySelector('#investment-modal .modal-body #investment-breakdown-table').addEventListener('click', (e) => {
+                const row = e.target.closest('.clickable-row');
+                if (row && row.dataset.type === 'provident-fund') {
+                    const selectedIndex = document.getElementById('month-selector-1').value;
+                    showProvidentFundBreakdown(selectedIndex);
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchFromGoogleSheets();
+        });
+
+    </script>
+</body>
+</html>
