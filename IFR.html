@@ -608,6 +608,277 @@
                 padding: 20px;
             }
         }
+
+        /* Main Tab Navigation */
+        .main-tab-nav {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 24px;
+            background: #2a2a2a;
+            border-radius: 12px;
+            padding: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        .main-tab-btn {
+            flex: 1;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.95em;
+            font-weight: 600;
+            transition: all 0.25s ease;
+            background: transparent;
+            color: #aaa;
+            letter-spacing: 0.3px;
+        }
+        .main-tab-btn:hover { background: rgba(134,1,17,0.3); color: #fff; }
+        .main-tab-btn.active { background: #860111; color: #fff; box-shadow: 0 2px 8px rgba(134,1,17,0.5); }
+        .main-tab-content { display: none; }
+        .main-tab-content.active { display: block; }
+
+        /* ── FUNDS TAB ─────────────────────────────────────── */
+
+        #funds-file-input { display: none; }
+        .f-sync-bar {
+            display: flex; align-items: center; justify-content: space-between; gap: 14px;
+            background: #fff; border: 1.5px solid #e6e6e6; border-radius: 10px;
+            padding: 12px 20px; margin-bottom: 10px;
+        }
+        .f-sync-left { display: flex; align-items: center; gap: 10px; }
+        .f-sync-dot {
+            width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0;
+            background: #ccc; transition: background 0.2s;
+        }
+        .f-sync-dot.loading { background: #f9a825; animation: fpulse 1s infinite; }
+        .f-sync-dot.ok { background: #2e7d32; }
+        .f-sync-dot.err { background: #c62828; }
+        @keyframes fpulse { 0%,100%{opacity:1;} 50%{opacity:0.35;} }
+        .f-sync-text { font-size: 0.82em; color: #444; font-weight: 600; }
+        .f-sync-sub { font-size: 0.73em; color: #aaa; margin-top: 1px; }
+        .f-upload-toggle {
+            font-size: 0.72em; color: #999; cursor: pointer; text-decoration: underline;
+            text-underline-offset: 2px; margin-bottom: 14px; display: inline-block;
+        }
+        .f-upload-toggle:hover { color: #860111; }
+        .f-upload-strip {
+            display: flex; align-items: center; gap: 14px;
+            background: #fff; border: 1.5px dashed #d8d8d8;
+            border-radius: 10px; padding: 14px 20px;
+            margin-bottom: 28px; cursor: pointer; transition: all 0.18s;
+        }
+        .f-upload-strip:hover, .f-upload-strip.drag-over { border-color: #860111; background: #fdf5f5; }
+        .f-upload-strip.loaded { border-color: #3a7d44; border-style: solid; background: #f5fbf6; cursor: default; }
+        .f-upload-icon { font-size: 1.4em; flex-shrink: 0; }
+        .f-upload-text { flex: 1; }
+        .f-upload-title { font-weight: 700; font-size: 0.88em; color: #1a1a1a; }
+        .f-upload-sub { font-size: 0.73em; color: #aaa; margin-top: 2px; }
+        .f-upload-badge { font-size: 0.73em; font-weight: 700; padding: 3px 10px; border-radius: 20px; display: none; }
+        .f-upload-badge.ok  { background: #eaf4eb; color: #2e6b38; display: inline-block; }
+        .f-upload-badge.err { background: #fdecea; color: #b71c1c; display: inline-block; }
+        .f-upload-btn {
+            background: #860111; color: #fff; border: none;
+            padding: 8px 20px; border-radius: 6px;
+            font-size: 0.8em; font-weight: 600; cursor: pointer;
+            transition: 0.15s; white-space: nowrap; letter-spacing: 0.2px;
+        }
+        .f-upload-btn:hover { background: #6e000e; }
+        .f-upload-btn.secondary {
+            background: #fff; color: #860111;
+            border: 1.5px solid #860111;
+        }
+        .f-upload-btn.secondary:hover { background: #fdf5f5; }
+
+        /* Month pills */
+        .f-month-nav { display: flex; gap: 6px; margin-bottom: 32px; flex-wrap: wrap; }
+        .f-month-pill {
+            padding: 7px 20px; border: 1.5px solid #e0e0e0; border-radius: 5px;
+            cursor: pointer; font-size: 0.82em; font-weight: 600;
+            color: #555; background: #fff; transition: all 0.15s; letter-spacing: 0.2px;
+        }
+        .f-month-pill:hover { border-color: #860111; color: #860111; }
+        .f-month-pill.active {
+            background: #860111; border-color: #860111; color: #fff;
+            box-shadow: 0 1px 6px rgba(134,1,17,0.25);
+        }
+
+        /* KPI cards — clickable */
+        .f-kpi-row {
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 14px; margin-bottom: 20px;
+        }
+        .f-kpi {
+            background: #fff; border-radius: 10px;
+            padding: 22px 18px 18px; position: relative;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.04);
+            cursor: pointer; transition: box-shadow 0.18s, transform 0.15s;
+            overflow: hidden;
+        }
+        .f-kpi:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.12); transform: translateY(-2px); }
+        .f-kpi::after {
+            content: 'View Details →';
+            position: absolute; bottom: 10px; right: 14px;
+            font-size: 0.68em; font-weight: 700; color: var(--kc, #860111);
+            opacity: 0; transition: opacity 0.15s;
+            letter-spacing: 0.3px; text-transform: uppercase;
+        }
+        .f-kpi:hover::after { opacity: 1; }
+        .f-kpi-bar {
+            position: absolute; top: 0; left: 0; right: 0; height: 3px;
+            background: var(--kc, #860111);
+        }
+        .f-kpi-label {
+            font-size: 0.7em; font-weight: 700; color: #999;
+            text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 10px;
+        }
+        .f-kpi-val {
+            font-size: 1.75em; font-weight: 800; color: #1a1a1a;
+            line-height: 1; margin-bottom: 8px; letter-spacing: -0.5px;
+        }
+        .f-kpi-sub { font-size: 0.75em; color: #999; }
+        .f-kpi-delta { font-size: 0.75em; font-weight: 700; margin-top: 4px; }
+        .f-kpi-delta.up { color: #c62828; }
+        .f-kpi-delta.dn { color: #2e7d32; }
+
+        /* Summary metric rows — 3 wide cards */
+        .f-summary-row {
+            display: grid; grid-template-columns: 1fr 1fr 1fr;
+            gap: 14px; margin-bottom: 20px;
+        }
+        .f-metric-card {
+            background: #fff; border-radius: 10px; padding: 20px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.04);
+            cursor: pointer; transition: box-shadow 0.18s, transform 0.15s;
+        }
+        .f-metric-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.12); transform: translateY(-2px); }
+        .f-metric-header {
+            display: flex; justify-content: space-between; align-items: flex-start;
+            margin-bottom: 16px;
+        }
+        .f-metric-title {
+            font-size: 0.72em; font-weight: 700; color: #888;
+            text-transform: uppercase; letter-spacing: 0.6px;
+        }
+        .f-metric-tag {
+            font-size: 0.68em; font-weight: 700; padding: 2px 8px;
+            border-radius: 4px; letter-spacing: 0.3px;
+        }
+        .f-metric-tag.green { background: #eaf4eb; color: #2e6b38; }
+        .f-metric-tag.amber { background: #fff3e0; color: #e65100; }
+        .f-metric-tag.red   { background: #fdecea; color: #b71c1c; }
+        .f-metric-tag.blue  { background: #e3f0ff; color: #1565c0; }
+        .f-metric-body { display: flex; align-items: flex-end; gap: 12px; margin-bottom: 14px; }
+        .f-metric-main { font-size: 1.5em; font-weight: 800; color: #1a1a1a; letter-spacing: -0.5px; }
+        .f-metric-secondary { font-size: 0.78em; color: #aaa; padding-bottom: 3px; }
+        .f-stacked-bar { display: flex; height: 6px; border-radius: 4px; overflow: hidden; gap: 2px; }
+        .f-stacked-seg { height: 100%; border-radius: 2px; }
+        .f-bar-legend { display: flex; gap: 14px; margin-top: 10px; flex-wrap: wrap; }
+        .f-bar-legend-item { display: flex; align-items: center; gap: 5px; font-size: 0.71em; color: #666; }
+        .f-bar-legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+        .f-drill-hint { font-size: 0.68em; color: #ccc; margin-top: 12px; font-weight: 600; letter-spacing: 0.3px; }
+
+        /* Trend table */
+        .f-trend-section {
+            background: #fff; border-radius: 10px; padding: 22px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.04);
+            margin-bottom: 20px;
+        }
+        .f-section-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid #f0f0f0;
+        }
+        .f-section-title { font-size: 0.72em; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.7px; }
+        .f-trend-table { width: 100%; border-collapse: collapse; }
+        .f-trend-table th {
+            font-size: 0.72em; color: #aaa; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.5px;
+            padding: 0 14px 10px; text-align: right; border-bottom: 1px solid #f0f0f0;
+        }
+        .f-trend-table th:first-child { text-align: left; }
+        .f-trend-table td { font-size: 0.84em; padding: 12px 14px; border-bottom: 1px solid #f8f8f8; }
+        .f-trend-table tr:last-child td { border-bottom: none; }
+        .f-trend-table tr:hover td { background: #fafafa; }
+        .f-trend-table td:not(:first-child) { text-align: right; font-weight: 700; color: #222; font-variant-numeric: tabular-nums; }
+        .f-trend-table td.f-active-col { color: #860111 !important; }
+        .f-trend-table td.f-metric-lbl { color: #555; font-weight: 500; }
+        .f-chg { font-size: 0.72em; font-weight: 700; white-space: nowrap; }
+        .f-chg.up { color: #c62828; } .f-chg.dn { color: #2e7d32; }
+
+        /* ── MODAL ───────────────────────────────────────────── */
+        .f-modal-overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(10,10,10,0.55); z-index: 9000;
+            align-items: center; justify-content: center;
+            backdrop-filter: blur(3px);
+        }
+        .f-modal-overlay.open { display: flex; }
+        .f-modal {
+            background: #fff; border-radius: 14px;
+            width: 580px; max-width: 95vw; max-height: 90vh;
+            overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+            animation: fModalIn 0.2s ease;
+        }
+        @keyframes fModalIn {
+            from { opacity: 0; transform: translateY(12px) scale(0.98); }
+            to   { opacity: 1; transform: none; }
+        }
+        .f-modal-head {
+            padding: 22px 24px 18px; border-bottom: 1px solid #f0f0f0;
+            display: flex; justify-content: space-between; align-items: flex-start;
+            position: sticky; top: 0; background: #fff; border-radius: 14px 14px 0 0; z-index: 1;
+        }
+        .f-modal-head-left {}
+        .f-modal-title { font-size: 1em; font-weight: 800; color: #1a1a1a; margin-bottom: 3px; }
+        .f-modal-sub { font-size: 0.75em; color: #aaa; font-weight: 500; }
+        .f-modal-close {
+            width: 30px; height: 30px; border-radius: 50%; border: none;
+            background: #f5f5f5; color: #555; font-size: 1em; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: background 0.15s; flex-shrink: 0;
+        }
+        .f-modal-close:hover { background: #ebebeb; }
+        .f-modal-body { padding: 22px 24px 26px; }
+        .f-modal-kpi-row { display: flex; gap: 12px; margin-bottom: 24px; }
+        .f-modal-kpi {
+            flex: 1; background: #f9f9f9; border-radius: 8px; padding: 14px;
+            border-left: 3px solid var(--mk, #860111);
+        }
+        .f-modal-kpi-lbl { font-size: 0.68em; font-weight: 700; color: #999; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; }
+        .f-modal-kpi-val { font-size: 1.1em; font-weight: 800; color: #1a1a1a; }
+        .f-modal-section-title {
+            font-size: 0.68em; font-weight: 800; color: #aaa;
+            text-transform: uppercase; letter-spacing: 0.7px;
+            margin-bottom: 10px; margin-top: 20px;
+        }
+        .f-modal-section-title:first-of-type { margin-top: 0; }
+        .f-modal-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 0; border-bottom: 1px solid #f5f5f5;
+        }
+        .f-modal-row:last-child { border-bottom: none; }
+        .f-modal-row-lbl { font-size: 0.84em; color: #555; }
+        .f-modal-row-val { font-size: 0.88em; font-weight: 700; color: #1a1a1a; font-variant-numeric: tabular-nums; }
+        .f-modal-row-val.pos { color: #2e7d32; } .f-modal-row-val.neg { color: #c62828; }
+        .f-modal-total-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 11px 12px; background: #f5f5f5; border-radius: 7px; margin-top: 6px;
+        }
+        .f-modal-total-lbl { font-size: 0.84em; font-weight: 700; color: #333; }
+        .f-modal-total-val { font-size: 0.92em; font-weight: 800; color: #860111; }
+        .f-modal-total-val.pos { color: #2e7d32; }
+        .f-modal-bar-wrap { margin: 14px 0 4px; }
+        .f-modal-bar-label { display: flex; justify-content: space-between; font-size: 0.78em; margin-bottom: 5px; }
+        .f-modal-bar-label span:first-child { color: #555; font-weight: 600; }
+        .f-modal-bar-label span:last-child { font-weight: 800; }
+        .f-modal-track { height: 8px; background: #efefef; border-radius: 6px; overflow: hidden; }
+        .f-modal-fill { height: 100%; border-radius: 6px; transition: width 0.5s ease; }
+        .f-modal-divider { height: 1px; background: #f0f0f0; margin: 18px 0; }
+        .f-modal-stacked { display: flex; height: 10px; border-radius: 6px; overflow: hidden; gap: 2px; margin: 10px 0 8px; }
+        .f-modal-stacked-seg { height: 100%; border-radius: 3px; }
+        .f-modal-legend { display: flex; gap: 14px; flex-wrap: wrap; }
+        .f-modal-legend-item { display: flex; align-items: center; gap: 5px; font-size: 0.75em; color: #666; }
+        .f-modal-legend-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+
     </style>
 </head>
 <body>
@@ -635,6 +906,13 @@
             <p>Financial Snapshot</p>
             <button id="refresh-btn" onclick="fetchFromGoogleSheets()" style="margin-top:12px;">🔄 Refresh Data</button>
         </header>
+
+        <div class="main-tab-nav">
+            <button class="main-tab-btn active" onclick="switchMainTab('ifr-tab')">📊 Monthly IFR</button>
+            <button class="main-tab-btn" onclick="switchMainTab('funds-tab')">💵 Funds Reconciliation</button>
+        </div>
+
+        <div id="ifr-tab" class="main-tab-content active">
 
         <div id="loading-indicator">
             <p>Loading data...</p>
@@ -1181,14 +1459,71 @@
                 </div>
             </div>
         </section>
+
+        </div><!-- end ifr-tab -->
+
+        <div id="funds-tab" class="main-tab-content">
+
+            <div class="f-sync-bar" id="f-sync-bar">
+                <div class="f-sync-left">
+                    <span class="f-sync-dot" id="f-sync-dot"></span>
+                    <div>
+                        <div class="f-sync-text" id="f-sync-text">Connecting to Google Sheets…</div>
+                        <div class="f-sync-sub" id="f-sync-sub">Funds Reconciliation workbook</div>
+                    </div>
+                </div>
+                <button class="f-upload-btn secondary" id="f-sync-btn" onclick="fetchFundsFromSheets(false)">🔄 Sync Now</button>
+            </div>
+            <span class="f-upload-toggle" id="f-upload-toggle" onclick="toggleFundsManualUpload()">Use a manual Excel file instead</span>
+
+            <input type="file" id="funds-file-input" accept=".xlsx,.xls">
+            <div class="f-upload-strip" id="f-upload-strip" style="display:none;" onclick="document.getElementById('funds-file-input').click()">
+                <div class="f-upload-icon">📂</div>
+                <div class="f-upload-text">
+                    <div class="f-upload-title">Funds Reconciliation — Excel Upload (override)</div>
+                    <div class="f-upload-sub" id="f-upload-sub">Drop your .xlsx here or click Browse · Sheet names: "Funds Position (Month Year)"</div>
+                </div>
+                <span id="f-upload-badge" class="f-upload-badge"></span>
+                <button class="f-upload-btn" id="f-upload-btn" onclick="event.stopPropagation(); document.getElementById('funds-file-input').click()">Browse File</button>
+            </div>
+
+            <div class="f-month-nav" id="f-month-nav"></div>
+            <div class="f-kpi-row" id="f-kpi-row"></div>
+            <div class="f-summary-row" id="f-summary-row"></div>
+            <div class="f-trend-section">
+                <div class="f-section-header">
+                    <span class="f-section-title">Multi-Month Trend</span>
+                    <span style="font-size:0.72em;color:#ccc;">Active month highlighted</span>
+                </div>
+                <div id="f-trend-wrap"></div>
+            </div>
+
+        </div><!-- end funds-tab -->
+
+        <!-- FUNDS DRILL-DOWN MODAL -->
+        <div class="f-modal-overlay" id="f-modal" onclick="if(event.target===this)closeFModal()">
+            <div class="f-modal">
+                <div class="f-modal-head">
+                    <div class="f-modal-head-left">
+                        <div class="f-modal-title" id="f-modal-title"></div>
+                        <div class="f-modal-sub" id="f-modal-sub"></div>
+                    </div>
+                    <button class="f-modal-close" onclick="closeFModal()">✕</button>
+                </div>
+                <div class="f-modal-body" id="f-modal-body"></div>
+            </div>
+        </div>
+
     </div>
 
     <script>
         // ── Google Sheets CSV URLs ─────────────────────────────────────────────
+        // Using the gviz export endpoint (works off "Anyone with the link — Viewer"
+        // sharing, same as Funds Reconciliation — no separate "Publish to web" needed)
         const SHEETS_URLS = {
-            income:       'https://docs.google.com/spreadsheets/d/e/2PACX-1vQT8zwYQmInh9QqsHuohOUXD_V6bQ2bIDPTiENG_tyyV72EKZZ8YWBYLysGud9zb8yD9zYnEodLRwwc/pub?output=csv',
-            expense:      'https://docs.google.com/spreadsheets/d/e/2PACX-1vSqhEeB9A08injwVJGoS6jA5qA_WrO0LX5nzM8B0F_wqqQyJ8TGCjJgeOPaWrP1FM6qO_HAKv7QLKH9/pub?output=csv',
-            balanceSheet: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTGfAncf4H8-615B4qvQf6kho0AUqsAqOcv_YmsxPRjMIkio2_Oy-2SyngdAZWho8AcVXcdxTSMDaGa/pub?output=csv'
+            income:       'https://docs.google.com/spreadsheets/d/1opFNLtzWJ4mSvOnTy-OM9GghjV-Colcvd1e5ljZbE84/gviz/tq?tqx=out:csv',
+            expense:      'https://docs.google.com/spreadsheets/d/1wm-7-kisaoDOD3aVQLfpEwqylvLvMgyzQwxyjQWFPEU/gviz/tq?tqx=out:csv',
+            balanceSheet: 'https://docs.google.com/spreadsheets/d/13LISQYp937v5y9QTpbkICeknEJ9q4iTGfKrgR3Fbl9I/gviz/tq?tqx=out:csv'
         };
 
         const uploadView    = document.getElementById('upload-view');
@@ -2209,8 +2544,668 @@
             });
         }
 
+
+        // ============================================================
+        // MAIN TAB SWITCHING
+        // ============================================================
+        function switchMainTab(tabId) {
+            document.querySelectorAll('.main-tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.main-tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            const idx = tabId === 'ifr-tab' ? 0 : 1;
+            document.querySelectorAll('.main-tab-btn')[idx].classList.add('active');
+
+            if (tabId === 'funds-tab' && !fundsAutoSynced) {
+                fundsAutoSynced = true;
+                fetchFundsFromSheets(false);
+            }
+        }
+
+        // ============================================================
+        // FUNDS RECONCILIATION — DYNAMIC (Excel-driven)
+        // ============================================================
+
+        // Seeded data (Mar–May 2026). Uploading a new file REPLACES this.
+        let fundsData = {
+            'May-26': { label:'May 2026',
+                donors:    { gbd3Received:426455, phcReceived:700000, totalReceived:1126455, gbd3Expense:239455, phcExpense:366014, citiExpense:44320, totalExpense:649789, balanceFunds:476666 },
+                available: { citiBalance:448604.53, citiInvestment:500000, ocbcTransfer:18435, totalFunds:967039.53 },
+                breakdown: { gbd3Funds:164840, phcFunds:311826, radsOwn:490373.53, drAdnan:77901.64, drAyesha:221638.23, radsUS:190833.67 }
+            },
+            'Apr-26': { label:'April 2026',
+                donors:    { gbd3Received:426455, phcReceived:700000, totalReceived:1126455, gbd3Expense:226924, phcExpense:339387, citiExpense:44320, totalExpense:610631, balanceFunds:515824 },
+                available: { citiBalance:448604.53, citiInvestment:500000, ocbcTransfer:18435, totalFunds:967039.53 },
+                breakdown: { gbd3Funds:177371, phcFunds:338453, radsOwn:451215.53, drAdnan:77901.64, drAyesha:221638.23, radsUS:151675.67 }
+            },
+            'Mar-26': { label:'March 2026',
+                donors:    { gbd3Received:426455, phcReceived:700000, totalReceived:1126455, gbd3Expense:213382, phcExpense:311906, citiExpense:44320, totalExpense:569608, balanceFunds:556847 },
+                available: { citiBalance:448604.53, citiInvestment:500000, ocbcTransfer:18435, totalFunds:967039.53 },
+                breakdown: { gbd3Funds:null, phcFunds:null, radsOwn:410192.53, drAdnan:77901.64, drAyesha:221638.23, radsUS:110652.67 }
+            }
+        };
+        let currentFundsMonth = 'May-26';
+
+        // ── Helpers ──────────────────────────────────────────────────
+        function fmtUSD(v) {
+            if (v === null || v === undefined || isNaN(v)) return '—';
+            return '$' + Math.round(v).toLocaleString('en-US');
+        }
+        function pcnt(num, denom) {
+            if (!denom || !num) return 0;
+            return Math.min(100, Math.round((num / denom) * 100));
+        }
+        function barClr(p) {
+            return p < 50 ? '#2e7d32' : p < 75 ? '#f9a825' : p < 90 ? '#e65100' : '#c62828';
+        }
+        function makeMonthKey(label) {
+            const map = {january:'Jan',february:'Feb',march:'Mar',april:'Apr',may:'May',june:'Jun',july:'Jul',august:'Aug',september:'Sep',october:'Oct',november:'Nov',december:'Dec'};
+            const m = label.toLowerCase().match(/(\w+)\s+(\d{4})/);
+            if (!m) return null;
+            return (map[m[1]] || m[1].slice(0,3)) + '-' + m[2].slice(2);
+        }
+        function sortFundsKeys(keys) {
+            const mo = {Jan:1,Feb:2,Mar:3,Apr:4,May:5,Jun:6,Jul:7,Aug:8,Sep:9,Oct:10,Nov:11,Dec:12};
+            return keys.sort((a,b) => {
+                const [am,ay] = a.split('-'), [bm,by] = b.split('-');
+                return parseInt(by) - parseInt(ay) || (mo[bm]||0) - (mo[am]||0);
+            });
+        }
+
+        // ── Row-number-based parser (matches your exact Excel layout) ─
+        // Rows (1-based): 6=GBD3 rcvd, 7=PHC rcvd, 8=Total rcvd,
+        // 10=GBD3 exp, 11=PHC exp, 12=Citi shared exp, 13=Total exp, 15=Balance Gates,
+        // 19=Citi bal, 20=Citi invest, 21=OCBC, 22=Total funds,
+        // 26=GBD3 funds, 27=PHC funds, 28=RADS own, 31=DrAdnan, 32=DrAyesha, 33=RADS US
+        function extractFundsFromRows(rows, label) {
+            // Sheet range is B1:M70 (col A unused), so XLSX.sheet_to_json
+            // returns arrays where: idx0=colB (headers), idx1=colC (labels), idx2=colD (values)
+            // Detect offset: if row 0 has a string at idx0, sheet starts at col B (offset=0 already)
+            // We find the value column dynamically by scanning for the first numeric value
+            let valCol = 2; // default: col D = index 2 when sheet starts at B
+            let lblCol = 1; // col C = index 1
+            // Auto-detect: scan first 10 rows for a number to find actual value column
+            for (const r of rows.slice(0, 35)) {
+                for (let c = 1; c <= 5; c++) {
+                    if (typeof r[c] === 'number' && !isNaN(r[c]) && r[c] > 100) {
+                        valCol = c;
+                        lblCol = c - 1;
+                        break;
+                    }
+                }
+                if (valCol !== 2) break;
+            }
+
+            function rv(rowNum) {
+                const r = rows[rowNum - 1]; // convert to 0-index
+                if (!r) return null;
+                const v = r[valCol];
+                return (typeof v === 'number' && !isNaN(v)) ? v : null;
+            }
+            // Fallback: keyword scan across all rows
+            function kw(keywords) {
+                for (const r of rows) {
+                    const lbl = String(r[lblCol] || r[lblCol-1] || r[lblCol+1] || '').trim().toLowerCase();
+                    if (lbl && keywords.every(k => lbl.includes(k.toLowerCase()))) {
+                        const v = r[valCol];
+                        return (typeof v === 'number' && !isNaN(v)) ? v : null;
+                    }
+                }
+                return null;
+            }
+            const d = {
+                label,
+                donors: {
+                    gbd3Received:  rv(6)  ?? kw(['received','gbd3']) ?? kw(['received','gb3']),
+                    phcReceived:   rv(7)  ?? kw(['received','phc']),
+                    totalReceived: rv(8)  ?? kw(['total funds','gates']) ?? kw(['total','gates foundation']),
+                    gbd3Expense:   rv(10) ?? kw(['expenses','gbd3']) ?? kw(['expenses','gb3']),
+                    phcExpense:    rv(11) ?? kw(['expenses','phc']),
+                    citiExpense:   rv(12) ?? kw(['made from citi']) ?? kw(['citi bank expenses']),
+                    totalExpense:  rv(13) ?? kw(['gates foundations expenses']) ?? kw(['gates foundation expenses']),
+                    balanceFunds:  rv(15) ?? kw(['balance funds']) ?? kw(['balance','gates'])
+                },
+                available: {
+                    citiBalance:    rv(19) ?? kw(['citi bank balance']),
+                    citiInvestment: rv(20) ?? kw(['citi bank investment']),
+                    ocbcTransfer:   rv(21) ?? kw(['ocbc']) ?? kw(['transferred']),
+                    totalFunds:     rv(22) ?? null   // handled separately below
+                },
+                breakdown: {
+                    gbd3Funds: rv(26) ?? kw(['gbd3 funds']) ?? kw(['gb3 funds']),
+                    phcFunds:  rv(27) ?? kw(['phc funds']),
+                    radsOwn:   rv(28) ?? kw(['rads own funds']),
+                    drAdnan:   rv(31) ?? kw(['dr. adnan']) ?? kw(['adnan']),
+                    drAyesha:  rv(32) ?? kw(['dr. ayesha']) ?? kw(['ayesha']),
+                    radsUS:    rv(33) ?? kw(['rads us'])
+                }
+            };
+            // totalFunds: use row 22 first, else sum the three available items
+            if (!d.available.totalFunds) {
+                const s = [d.available.citiBalance, d.available.citiInvestment, d.available.ocbcTransfer]
+                    .filter(v => v !== null);
+                d.available.totalFunds = s.length ? s.reduce((a,b)=>a+b,0) : null;
+            }
+            return d;
+        }
+
+        // ── Google Sheets Live Sync ─────────────────────────────────────
+        // The Funds Reconciliation workbook lives in Google Sheets, one tab
+        // per month named exactly like the old Excel sheets: "Funds Position (Month Year)".
+        // Sheet must be shared as "Anyone with the link — Viewer" for this to work.
+        const FUNDS_SHEET_ID = '1G8H6BNy9iH_ZT3HUG49ORRBLj9Pk1gBo';
+        let fundsAutoSynced = false;
+
+        function fundsSheetCandidates() {
+            const months = ['January','February','March','April','May','June','July',
+                             'August','September','October','November','December'];
+            const now = new Date();
+            const list = [];
+            // Try 1 month ahead (in case next month's tab was pre-created) through 18 months back
+            for (let i = -1; i <= 18; i++) {
+                const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                list.push('Funds Position (' + months[d.getMonth()] + ' ' + d.getFullYear() + ')');
+            }
+            return list;
+        }
+
+        function setFSyncStatus(state, text, sub) {
+            const dot = document.getElementById('f-sync-dot');
+            const txt = document.getElementById('f-sync-text');
+            const subEl = document.getElementById('f-sync-sub');
+            dot.className = 'f-sync-dot' + (state ? ' ' + state : '');
+            txt.textContent = text;
+            if (sub !== undefined) subEl.textContent = sub;
+        }
+
+        async function fetchFundsFromSheets(manual) {
+            const btn = document.getElementById('f-sync-btn');
+            setFSyncStatus('loading', 'Syncing from Google Sheets…');
+            if (btn) btn.disabled = true;
+
+            const candidates = fundsSheetCandidates();
+            const parsed = {};
+            let loaded = 0;
+
+            await Promise.all(candidates.map(async sheetName => {
+                try {
+                    const url = 'https://docs.google.com/spreadsheets/d/' + FUNDS_SHEET_ID +
+                                '/gviz/tq?tqx=out:csv&sheet=' + encodeURIComponent(sheetName);
+                    const res = await fetch(url);
+                    if (!res.ok) return; // tab doesn't exist for that month
+                    const text = await res.text();
+                    if (!text || text.trim().startsWith('<')) return; // Google's HTML error page
+                    const result = Papa.parse(text.trim(), { dynamicTyping: true });
+                    const rows = result.data;
+                    if (!rows || !rows.length) return;
+                    const labelMatch = sheetName.match(/\(([^)]+)\)/);
+                    const label = labelMatch ? labelMatch[1].trim() : sheetName;
+                    const key = makeMonthKey(label);
+                    if (!key) return;
+                    const data = extractFundsFromRows(rows, label);
+                    if (data) { parsed[key] = data; loaded++; }
+                } catch (e) { /* network/tab miss — skip silently */ }
+            }));
+
+            if (btn) btn.disabled = false;
+
+            if (!loaded) {
+                setFSyncStatus('err', 'Couldn\'t reach the sheet',
+                    'Check it\'s shared as "Anyone with the link — Viewer", or use manual upload below');
+                return false;
+            }
+
+            fundsData = parsed;
+            const keys = sortFundsKeys(Object.keys(fundsData));
+            currentFundsMonth = keys[0];
+            buildFMonthNav(keys);
+            renderFundsTab(currentFundsMonth);
+
+            const now = new Date();
+            setFSyncStatus('ok', '✓ Live — ' + loaded + ' month' + (loaded > 1 ? 's' : '') + ' from Google Sheets',
+                'Last synced ' + now.toLocaleDateString() + ' ' + now.toLocaleTimeString());
+            return true;
+        }
+
+        function toggleFundsManualUpload() {
+            const strip = document.getElementById('f-upload-strip');
+            const toggle = document.getElementById('f-upload-toggle');
+            const showing = strip.style.display !== 'none';
+            strip.style.display = showing ? 'none' : 'flex';
+            toggle.textContent = showing ? 'Use a manual Excel file instead' : 'Hide manual upload';
+        }
+
+        // ── Excel Upload ──────────────────────────────────────────────
+        document.addEventListener('DOMContentLoaded', () => {
+            const fi = document.getElementById('funds-file-input');
+            const strip = document.getElementById('f-upload-strip');
+            fi.addEventListener('change', e => { if (e.target.files[0]) parseFundsExcel(e.target.files[0]); });
+            strip.addEventListener('dragover',  e => { e.preventDefault(); strip.classList.add('drag-over'); });
+            strip.addEventListener('dragleave', () => strip.classList.remove('drag-over'));
+            strip.addEventListener('drop', e => {
+                e.preventDefault(); strip.classList.remove('drag-over');
+                const f = e.dataTransfer.files[0];
+                if (f && (f.name.endsWith('.xlsx')||f.name.endsWith('.xls'))) parseFundsExcel(f);
+                else setFBadge('err','Drop an .xlsx file');
+            });
+        });
+
+        function parseFundsExcel(file) {
+            setFBadge('loading','Reading…');
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const wb = XLSX.read(e.target.result, { type:'array', cellFormula:false });
+                    const parsed = {};
+                    let loaded = 0;
+                    wb.SheetNames.forEach(sn => {
+                        if (!sn.toLowerCase().includes('funds position') &&
+                            !sn.toLowerCase().includes('funds reconciliation')) return;
+                        const ws = wb.Sheets[sn];
+                        const rows = XLSX.utils.sheet_to_json(ws, {header:1, defval:null, raw:true});
+                        const labelMatch = sn.match(/\(([^)]+)\)/);
+                        const label = labelMatch ? labelMatch[1].trim() : sn;
+                        const key = makeMonthKey(label);
+                        if (!key) return;
+                        const data = extractFundsFromRows(rows, label);
+                        if (data) { parsed[key] = data; loaded++; }
+                    });
+                    if (!loaded) { setFBadge('err','No "Funds Position" sheets found'); return; }
+
+                    fundsData = parsed;
+                    const keys = sortFundsKeys(Object.keys(fundsData));
+                    currentFundsMonth = keys[0];
+                    buildFMonthNav(keys);
+                    renderFundsTab(currentFundsMonth);
+
+                    // Update strip UI
+                    const strip = document.getElementById('f-upload-strip');
+                    strip.classList.add('loaded');
+                    strip.onclick = null;
+                    document.getElementById('f-upload-sub').textContent =
+                        file.name + ' · ' + loaded + ' month' + (loaded>1?'s':'') + ' loaded';
+                    setFBadge('ok', '✓ ' + loaded + ' sheets');
+                    const btn = document.getElementById('f-upload-btn');
+                    btn.textContent = 'Replace';
+                    btn.className = 'f-upload-btn secondary';
+                    btn.onclick = e => { e.stopPropagation(); resetFundsUpload(); };
+                    setFSyncStatus('', 'Manual override active — showing uploaded file, not live sheet',
+                        file.name + ' · click "Sync Now" above to go back to live data');
+                } catch(err) {
+                    setFBadge('err', 'Error: ' + err.message);
+                    console.error(err);
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function resetFundsUpload() {
+            document.getElementById('funds-file-input').value = '';
+            const strip = document.getElementById('f-upload-strip');
+            strip.classList.remove('loaded');
+            strip.onclick = () => document.getElementById('funds-file-input').click();
+            document.getElementById('f-upload-sub').textContent =
+                'Drop your .xlsx here or click Browse — each sheet becomes a month tab · Sheet names: "Funds Position (Month Year)"';
+            setFBadge('hidden','');
+            const btn = document.getElementById('f-upload-btn');
+            btn.textContent = 'Browse File';
+            btn.className = 'f-upload-btn';
+            btn.onclick = e => { e.stopPropagation(); document.getElementById('funds-file-input').click(); };
+        }
+
+        function setFBadge(type, msg) {
+            const el = document.getElementById('f-upload-badge');
+            el.className = 'f-upload-badge' + (type !== 'hidden' ? ' ' + (type==='err'?'err':'ok') : '');
+            el.textContent = msg;
+            el.style.display = type === 'hidden' ? 'none' : 'inline-block';
+            if (type === 'loading') { el.style.background='#fff9c4'; el.style.color='#e65100'; }
+            else { el.style.background=''; el.style.color=''; }
+        }
+
+        // ── Nav + Render ──────────────────────────────────────────────
+        function buildFMonthNav(keys) {
+            document.getElementById('f-month-nav').innerHTML = keys.map((k,i) =>
+                `<button class="f-month-pill${i===0?' active':''}" onclick="showFundsMonth('${k}')">${fundsData[k].label}</button>`
+            ).join('');
+        }
+
+        function showFundsMonth(month) {
+            currentFundsMonth = month;
+            document.querySelectorAll('.f-month-pill').forEach(b =>
+                b.classList.toggle('active', b.textContent === fundsData[month].label));
+            renderFundsTab(month);
+        }
+
+        function renderFundsTab(month) {
+            const d = fundsData[month];
+            if (!d) return;
+            const allKeys = sortFundsKeys(Object.keys(fundsData));
+            const prevKey = allKeys[allKeys.indexOf(month) + 1];
+            const prev = prevKey ? fundsData[prevKey] : null;
+
+            function dlt(curr, p) {
+                if (curr == null || p == null) return '';
+                const diff = curr - p, cls = diff > 0 ? 'up' : 'dn', arr = diff > 0 ? '▲' : '▼';
+                return `<div class="f-kpi-delta ${cls}">${arr} ${fmtUSD(Math.abs(diff))} vs ${fundsData[prevKey]?.label||'prev'}</div>`;
+            }
+
+            const totalUtil = pcnt(d.donors.totalExpense, d.donors.totalReceived);
+
+            // ── 4 KPI cards ──────────────────────────────────────────
+            const kpis = [
+                { id:'kpi-total',  lbl:'Total Funds', val: fmtUSD(d.available.totalFunds),
+                  sub:'Citi Bank (Cash + Invested)', c:'#860111',
+                  dlt: prev ? dlt(d.available.totalFunds, prev.available.totalFunds) : '',
+                  click: () => openFModal('available', month) },
+                { id:'kpi-gates',  lbl:'Gates Balance', val: fmtUSD(d.donors.balanceFunds),
+                  sub:'GBD3 + PHC unspent', c:'#2e7d32',
+                  dlt: prev ? dlt(d.donors.balanceFunds, prev.donors.balanceFunds) : '',
+                  click: () => openFModal('gates', month) },
+                { id:'kpi-rads',   lbl:'RADS Own Funds', val: fmtUSD(d.breakdown.radsOwn),
+                  sub:'Directors + RADS US', c:'#1565c0',
+                  dlt: prev ? dlt(d.breakdown.radsOwn, prev.breakdown.radsOwn) : '',
+                  click: () => openFModal('equity', month) },
+                { id:'kpi-util',   lbl:'Donor Utilization', val: totalUtil + '%',
+                  sub:'Of total Gates funds spent', c: totalUtil>80?'#e65100':'#2e6b38',
+                  dlt: prev ? (() => { const pp=pcnt(prev.donors.totalExpense,prev.donors.totalReceived),diff=totalUtil-pp; return diff?`<div class="f-kpi-delta ${diff>0?'up':'dn'}">${diff>0?'▲':'▼'} ${Math.abs(diff)}pp vs ${fundsData[prevKey].label}</div>`:''; })() : '',
+                  click: () => openFModal('utilization', month) },
+            ];
+            document.getElementById('f-kpi-row').innerHTML = kpis.map(k => `
+                <div class="f-kpi" style="--kc:${k.c}" onclick="fKpiClicks['${k.id}']()" title="Click for details">
+                    <div class="f-kpi-bar"></div>
+                    <div class="f-kpi-label">${k.lbl}</div>
+                    <div class="f-kpi-val">${k.val}</div>
+                    <div class="f-kpi-sub">${k.sub}</div>
+                    ${k.dlt}
+                </div>`).join('');
+            // store click handlers by id
+            window.fKpiClicks = {};
+            kpis.forEach(k => window.fKpiClicks[k.id] = k.click);
+
+            // ── 3 Summary cards ──────────────────────────────────────
+            const cashPct = pcnt(d.available.citiBalance, d.available.totalFunds);
+            const invPct  = pcnt(d.available.citiInvestment, d.available.totalFunds);
+            const ocbcPct = pcnt(d.available.ocbcTransfer, d.available.totalFunds);
+            const tot3 = (d.breakdown.drAdnan||0)+(d.breakdown.drAyesha||0)+(d.breakdown.radsUS||0);
+            const adPct = pcnt(d.breakdown.drAdnan, tot3);
+            const ayPct = pcnt(d.breakdown.drAyesha, tot3);
+            const usPct = pcnt(d.breakdown.radsUS, tot3);
+            const gbd3Pct = pcnt(d.donors.gbd3Expense, d.donors.gbd3Received);
+            const phcPct  = pcnt(d.donors.phcExpense,  d.donors.phcReceived);
+
+            document.getElementById('f-summary-row').innerHTML = `
+                <div class="f-metric-card" onclick="openFModal('gates',currentFundsMonth)" title="Click for full breakdown">
+                    <div class="f-metric-header">
+                        <div class="f-metric-title">Donors Portfolio</div>
+                        <span class="f-metric-tag ${totalUtil>80?'amber':'green'}">${totalUtil}% utilized</span>
+                    </div>
+                    <div class="f-metric-body">
+                        <div class="f-metric-main">${fmtUSD(d.donors.balanceFunds)}</div>
+                        <div class="f-metric-secondary">remaining of ${fmtUSD(d.donors.totalReceived)}</div>
+                    </div>
+                    <div class="f-stacked-bar">
+                        <div class="f-stacked-seg" style="flex:${gbd3Pct||1};background:#860111;"></div>
+                        <div class="f-stacked-seg" style="flex:${100-gbd3Pct||1};background:#f0f0f0;"></div>
+                    </div>
+                    <div class="f-stacked-bar" style="margin-top:3px;">
+                        <div class="f-stacked-seg" style="flex:${phcPct||1};background:#1565c0;"></div>
+                        <div class="f-stacked-seg" style="flex:${100-phcPct||1};background:#f0f0f0;"></div>
+                    </div>
+                    <div class="f-bar-legend">
+                        <div class="f-bar-legend-item"><div class="f-bar-legend-dot" style="background:#860111"></div>GBD3 ${gbd3Pct}%</div>
+                        <div class="f-bar-legend-item"><div class="f-bar-legend-dot" style="background:#1565c0"></div>PHC ${phcPct}%</div>
+                    </div>
+                    <div class="f-drill-hint">CLICK FOR DETAILS →</div>
+                </div>
+
+                <div class="f-metric-card" onclick="openFModal('available',currentFundsMonth)" title="Click for full breakdown">
+                    <div class="f-metric-header">
+                        <div class="f-metric-title">Available Funds — Citi Bank</div>
+                        <span class="f-metric-tag blue">${cashPct}% liquid</span>
+                    </div>
+                    <div class="f-metric-body">
+                        <div class="f-metric-main">${fmtUSD(d.available.totalFunds)}</div>
+                        <div class="f-metric-secondary">total across accounts</div>
+                    </div>
+                    <div class="f-stacked-bar">
+                        <div class="f-stacked-seg" style="flex:${cashPct||1};background:#1565c0;"></div>
+                        <div class="f-stacked-seg" style="flex:${invPct||1};background:#860111;"></div>
+                        <div class="f-stacked-seg" style="flex:${ocbcPct||1};background:#555;"></div>
+                    </div>
+                    <div class="f-bar-legend">
+                        <div class="f-bar-legend-item"><div class="f-bar-legend-dot" style="background:#1565c0"></div>Cash ${cashPct}%</div>
+                        <div class="f-bar-legend-item"><div class="f-bar-legend-dot" style="background:#860111"></div>Invested ${invPct}%</div>
+                        <div class="f-bar-legend-item"><div class="f-bar-legend-dot" style="background:#555"></div>OCBC ${ocbcPct}%</div>
+                    </div>
+                    <div class="f-drill-hint">CLICK FOR DETAILS →</div>
+                </div>
+
+                <div class="f-metric-card" onclick="openFModal('equity',currentFundsMonth)" title="Click for full breakdown">
+                    <div class="f-metric-header">
+                        <div class="f-metric-title">Directors' Equity</div>
+                        <span class="f-metric-tag blue">RADS Own Funds</span>
+                    </div>
+                    <div class="f-metric-body">
+                        <div class="f-metric-main">${fmtUSD(d.breakdown.radsOwn)}</div>
+                        <div class="f-metric-secondary">total equity position</div>
+                    </div>
+                    <div class="f-stacked-bar">
+                        <div class="f-stacked-seg" style="flex:${adPct||1};background:#860111;"></div>
+                        <div class="f-stacked-seg" style="flex:${ayPct||1};background:#1565c0;"></div>
+                        <div class="f-stacked-seg" style="flex:${usPct||1};background:#2e7d32;"></div>
+                    </div>
+                    <div class="f-bar-legend">
+                        <div class="f-bar-legend-item"><div class="f-bar-legend-dot" style="background:#860111"></div>Dr. Adnan ${adPct}%</div>
+                        <div class="f-bar-legend-item"><div class="f-bar-legend-dot" style="background:#1565c0"></div>Dr. Ayesha ${ayPct}%</div>
+                        <div class="f-bar-legend-item"><div class="f-bar-legend-dot" style="background:#2e7d32"></div>RADS US ${usPct}%</div>
+                    </div>
+                    <div class="f-drill-hint">CLICK FOR DETAILS →</div>
+                </div>`;
+
+            // ── Trend table ──────────────────────────────────────────
+            const metrics = [
+                { lbl:'Total Available Funds', fn: d=>d.available.totalFunds },
+                { lbl:'Gates Foundation Balance', fn: d=>d.donors.balanceFunds },
+                { lbl:'Gates Expenses (YTD)', fn: d=>d.donors.totalExpense },
+                { lbl:'RADS Own Funds', fn: d=>d.breakdown.radsOwn },
+                { lbl:'Dr. Adnan', fn: d=>d.breakdown.drAdnan },
+                { lbl:'Dr. Ayesha', fn: d=>d.breakdown.drAyesha },
+                { lbl:'RADS US', fn: d=>d.breakdown.radsUS },
+            ];
+            document.getElementById('f-trend-wrap').innerHTML = `
+                <table class="f-trend-table">
+                    <thead><tr>
+                        <th>Metric</th>
+                        ${allKeys.map(k=>`<th style="${k===month?'color:#860111;font-weight:800;':''}">${fundsData[k].label}</th>`).join('')}
+                        <th>Net Change</th>
+                    </tr></thead>
+                    <tbody>${metrics.map(m=>{
+                        const vals=allKeys.map(k=>m.fn(fundsData[k]));
+                        const first=vals[0], last=vals.filter(v=>v!=null).pop();
+                        const diff=(first!=null&&last!=null)?first-last:null;
+                        const dc=diff==null?'':diff>0?'up':'dn', dt=diff==null?'—':(diff>0?'▲ ':'▼ ')+fmtUSD(Math.abs(diff));
+                        return `<tr>
+                            <td class="f-metric-lbl">${m.lbl}</td>
+                            ${vals.map((v,i)=>`<td class="${allKeys[i]===month?'f-active-col':''}">${fmtUSD(v)}</td>`).join('')}
+                            <td><span class="f-chg ${dc}">${dt}</span></td>
+                        </tr>`;
+                    }).join('')}</tbody>
+                </table>`;
+        }
+
+        // ── Modal ─────────────────────────────────────────────────────
+        function openFModal(type, month) {
+            const d = fundsData[month];
+            if (!d) return;
+            const allKeys = sortFundsKeys(Object.keys(fundsData));
+            const prevKey = allKeys[allKeys.indexOf(month)+1];
+            const prev = prevKey ? fundsData[prevKey] : null;
+
+            let title='', sub=d.label+' · Citi Bank US', body='';
+
+            function mBar(lbl, val, total, color) {
+                const p = pcnt(val, total);
+                return `<div class="f-modal-bar-wrap">
+                    <div class="f-modal-bar-label">
+                        <span>${lbl}</span>
+                        <span style="color:${color}">${p}% &nbsp;<span style="font-weight:400;color:#aaa;">${fmtUSD(val)} of ${fmtUSD(total)}</span></span>
+                    </div>
+                    <div class="f-modal-track"><div class="f-modal-fill" style="width:${p}%;background:${color};"></div></div>
+                </div>`;
+            }
+            function mRow(lbl, val, cls='') {
+                return `<div class="f-modal-row"><span class="f-modal-row-lbl">${lbl}</span><span class="f-modal-row-val ${cls}">${val}</span></div>`;
+            }
+            function mTotal(lbl, val, cls='') {
+                return `<div class="f-modal-total-row"><span class="f-modal-total-lbl">${lbl}</span><span class="f-modal-total-val ${cls}">${val}</span></div>`;
+            }
+            function mKpi(lbl, val, color='#860111') {
+                return `<div class="f-modal-kpi" style="--mk:${color}"><div class="f-modal-kpi-lbl">${lbl}</div><div class="f-modal-kpi-val">${val}</div></div>`;
+            }
+            function mSectionTitle(t) { return `<div class="f-modal-section-title">${t}</div>`; }
+
+            if (type === 'gates') {
+                title = 'Donors & Projects Portfolio';
+                const gbd3Pct = pcnt(d.donors.gbd3Expense, d.donors.gbd3Received);
+                const phcPct  = pcnt(d.donors.phcExpense,  d.donors.phcReceived);
+                const totPct  = pcnt(d.donors.totalExpense, d.donors.totalReceived);
+                body = `
+                    <div class="f-modal-kpi-row">
+                        ${mKpi('Total Received', fmtUSD(d.donors.totalReceived), '#1565c0')}
+                        ${mKpi('Total Spent', fmtUSD(d.donors.totalExpense), '#860111')}
+                        ${mKpi('Balance', fmtUSD(d.donors.balanceFunds), '#2e6b38')}
+                    </div>
+                    ${mSectionTitle('Funds Received')}
+                    ${mRow('Gates Foundation — GBD3', fmtUSD(d.donors.gbd3Received))}
+                    ${mRow('Gates Foundation — PHC', fmtUSD(d.donors.phcReceived))}
+                    ${mTotal('Total Gates Received', fmtUSD(d.donors.totalReceived))}
+                    ${mSectionTitle('Expenses Incurred')}
+                    ${mRow('GBD3 Project Expenses', fmtUSD(d.donors.gbd3Expense), 'neg')}
+                    ${mRow('PHC Project Expenses', fmtUSD(d.donors.phcExpense), 'neg')}
+                    ${mRow('Shared Citi Bank Charges', fmtUSD(d.donors.citiExpense), 'neg')}
+                    ${mTotal('Total Expenses', '('+fmtUSD(d.donors.totalExpense)+')')}
+                    <div class="f-modal-divider"></div>
+                    ${mSectionTitle('Utilization Analysis')}
+                    ${mBar('GBD3 Burn Rate', d.donors.gbd3Expense, d.donors.gbd3Received, barClr(gbd3Pct))}
+                    ${mBar('PHC Burn Rate', d.donors.phcExpense, d.donors.phcReceived, barClr(phcPct))}
+                    ${mBar('Overall Utilization', d.donors.totalExpense, d.donors.totalReceived, barClr(totPct))}
+                    <div class="f-modal-divider"></div>
+                    ${mTotal('Gates Foundation Balance Remaining', fmtUSD(d.donors.balanceFunds), 'pos')}
+                    ${prev ? `<div style="font-size:0.76em;color:#aaa;text-align:right;margin-top:6px;">vs ${fundsData[prevKey].label}: ${fmtUSD(prev.donors.balanceFunds)}</div>` : ''}`;
+
+            } else if (type === 'available') {
+                title = 'Available Funds Position — Citi Bank';
+                const cashPct = pcnt(d.available.citiBalance, d.available.totalFunds);
+                const invPct  = pcnt(d.available.citiInvestment, d.available.totalFunds);
+                const ocbcPct = pcnt(d.available.ocbcTransfer, d.available.totalFunds);
+                body = `
+                    <div class="f-modal-kpi-row">
+                        ${mKpi('Cash', fmtUSD(d.available.citiBalance), '#1565c0')}
+                        ${mKpi('Invested', fmtUSD(d.available.citiInvestment), '#860111')}
+                        ${mKpi('OCBC', fmtUSD(d.available.ocbcTransfer), '#555')}
+                    </div>
+                    ${mSectionTitle('Account Balances')}
+                    ${mRow('Citi Bank — Cash Balance', fmtUSD(d.available.citiBalance))}
+                    ${mRow('Citi Bank — Investment Account', fmtUSD(d.available.citiInvestment))}
+                    ${mRow('Transferred to OCBC Singapore', fmtUSD(d.available.ocbcTransfer))}
+                    ${mTotal('Total Available Funds', fmtUSD(d.available.totalFunds))}
+                    <div class="f-modal-divider"></div>
+                    ${mSectionTitle('Funds Composition')}
+                    <div class="f-modal-stacked">
+                        <div class="f-modal-stacked-seg" style="flex:${cashPct||1};background:#1565c0;"></div>
+                        <div class="f-modal-stacked-seg" style="flex:${invPct||1};background:#860111;"></div>
+                        <div class="f-modal-stacked-seg" style="flex:${ocbcPct||1};background:#555;"></div>
+                    </div>
+                    <div class="f-modal-legend">
+                        <div class="f-modal-legend-item"><div class="f-modal-legend-dot" style="background:#1565c0"></div>Cash — ${cashPct}%</div>
+                        <div class="f-modal-legend-item"><div class="f-modal-legend-dot" style="background:#860111"></div>Invested — ${invPct}%</div>
+                        <div class="f-modal-legend-item"><div class="f-modal-legend-dot" style="background:#555"></div>OCBC — ${ocbcPct}%</div>
+                    </div>
+                    <div class="f-modal-divider"></div>
+                    ${mSectionTitle('Allocation by Donor / Owner')}
+                    ${d.breakdown.gbd3Funds!=null ? mRow('GBD3 Unspent Funds', fmtUSD(d.breakdown.gbd3Funds), 'pos') : mRow('GBD3 Breakdown', '—')}
+                    ${d.breakdown.phcFunds!=null  ? mRow('PHC Unspent Funds',  fmtUSD(d.breakdown.phcFunds),  'pos') : ''}
+                    ${mRow('RADS Own Funds', fmtUSD(d.breakdown.radsOwn))}
+                    ${prev ? `<div style="font-size:0.76em;color:#aaa;text-align:right;margin-top:10px;">Total funds vs ${fundsData[prevKey].label}: ${fmtUSD(prev.available.totalFunds)}</div>` : ''}`;
+
+            } else if (type === 'equity') {
+                title = "Directors' Equity — RADS Own Funds";
+                const tot = (d.breakdown.drAdnan||0)+(d.breakdown.drAyesha||0)+(d.breakdown.radsUS||0);
+                const adPct = pcnt(d.breakdown.drAdnan, tot);
+                const ayPct = pcnt(d.breakdown.drAyesha, tot);
+                const usPct = pcnt(d.breakdown.radsUS, tot);
+                body = `
+                    <div class="f-modal-kpi-row">
+                        ${mKpi('Dr. Adnan', fmtUSD(d.breakdown.drAdnan), '#860111')}
+                        ${mKpi('Dr. Ayesha', fmtUSD(d.breakdown.drAyesha), '#1565c0')}
+                        ${mKpi('RADS US', fmtUSD(d.breakdown.radsUS), '#2e6b38')}
+                    </div>
+                    ${mTotal('RADS Own Funds (Total)', fmtUSD(d.breakdown.radsOwn))}
+                    <div class="f-modal-divider"></div>
+                    ${mSectionTitle('Equity Share Breakdown')}
+                    <div class="f-modal-stacked">
+                        <div class="f-modal-stacked-seg" style="flex:${adPct||1};background:#860111;"></div>
+                        <div class="f-modal-stacked-seg" style="flex:${ayPct||1};background:#1565c0;"></div>
+                        <div class="f-modal-stacked-seg" style="flex:${usPct||1};background:#2e6b38;"></div>
+                    </div>
+                    <div class="f-modal-legend" style="margin-bottom:18px;">
+                        <div class="f-modal-legend-item"><div class="f-modal-legend-dot" style="background:#860111"></div>Dr. Adnan — ${adPct}%</div>
+                        <div class="f-modal-legend-item"><div class="f-modal-legend-dot" style="background:#1565c0"></div>Dr. Ayesha — ${ayPct}%</div>
+                        <div class="f-modal-legend-item"><div class="f-modal-legend-dot" style="background:#2e6b38"></div>RADS US — ${usPct}%</div>
+                    </div>
+                    ${mBar('Dr. Adnan Share', d.breakdown.drAdnan, tot, '#860111')}
+                    ${mBar('Dr. Ayesha Share', d.breakdown.drAyesha, tot, '#1565c0')}
+                    ${mBar('RADS US Share', d.breakdown.radsUS, tot, '#2e6b38')}
+                    ${prev ? `<div class="f-modal-divider"></div>${mSectionTitle('vs '+fundsData[prevKey].label)}${mRow('Dr. Adnan',fmtUSD(prev.breakdown.drAdnan))}${mRow('Dr. Ayesha',fmtUSD(prev.breakdown.drAyesha))}${mRow('RADS US',fmtUSD(prev.breakdown.radsUS))}` : ''}`;
+
+            } else if (type === 'utilization') {
+                title = 'Donor Funds Utilization Analysis';
+                const gbd3Pct = pcnt(d.donors.gbd3Expense, d.donors.gbd3Received);
+                const phcPct  = pcnt(d.donors.phcExpense,  d.donors.phcReceived);
+                const totPct  = pcnt(d.donors.totalExpense, d.donors.totalReceived);
+                body = `
+                    <div class="f-modal-kpi-row">
+                        ${mKpi('GBD3 Utilized', gbd3Pct+'%', barClr(gbd3Pct))}
+                        ${mKpi('PHC Utilized', phcPct+'%', barClr(phcPct))}
+                        ${mKpi('Overall', totPct+'%', barClr(totPct))}
+                    </div>
+                    ${mSectionTitle('GBD3 Project — Bill & Melinda Gates Foundation')}
+                    ${mRow('Total Allocated', fmtUSD(d.donors.gbd3Received))}
+                    ${mRow('Expensed to Date', fmtUSD(d.donors.gbd3Expense), 'neg')}
+                    ${mRow('Remaining Balance', fmtUSD(d.breakdown.gbd3Funds), 'pos')}
+                    ${mBar('GBD3 Utilization Rate', d.donors.gbd3Expense, d.donors.gbd3Received, barClr(gbd3Pct))}
+                    <div class="f-modal-divider"></div>
+                    ${mSectionTitle('PHC Project — Bill & Melinda Gates Foundation')}
+                    ${mRow('Total Allocated', fmtUSD(d.donors.phcReceived))}
+                    ${mRow('Expensed to Date', fmtUSD(d.donors.phcExpense), 'neg')}
+                    ${mRow('Remaining Balance', fmtUSD(d.breakdown.phcFunds), 'pos')}
+                    ${mBar('PHC Utilization Rate', d.donors.phcExpense, d.donors.phcReceived, barClr(phcPct))}
+                    <div class="f-modal-divider"></div>
+                    ${mSectionTitle('Consolidated Gates Portfolio')}
+                    ${mBar('Overall Utilization', d.donors.totalExpense, d.donors.totalReceived, barClr(totPct))}
+                    ${mRow('Shared Citi Bank Charges', fmtUSD(d.donors.citiExpense), 'neg')}
+                    ${mTotal('Net Gates Balance', fmtUSD(d.donors.balanceFunds), 'pos')}`;
+            }
+
+            document.getElementById('f-modal-title').textContent = title;
+            document.getElementById('f-modal-sub').textContent = sub;
+            document.getElementById('f-modal-body').innerHTML = body;
+            document.getElementById('f-modal').classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeFModal() {
+            document.getElementById('f-modal').classList.remove('open');
+            document.body.style.overflow = '';
+        }
+        document.addEventListener('keydown', e => { if(e.key==='Escape') closeFModal(); });
+
+        // ============================================================
+        // ============================================================
+
         document.addEventListener('DOMContentLoaded', () => {
             fetchFromGoogleSheets();
+            fundsAutoSynced = true;
+            fetchFundsFromSheets(true);
         });
 
     </script>
