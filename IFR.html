@@ -2368,54 +2368,63 @@
             tableBody.appendChild(totalRow);
         }
 
+        // RADS fiscal year runs July → June. Given a period label like 'Aug-26',
+        // returns the Jul/Jun labels bounding the fiscal year that period falls in.
+        // 'Jan-26' through 'Jun-26' -> FY started Jul-25; 'Jul-26' through 'Dec-26' -> FY started Jul-26.
+        function getFiscalYearLabels(periodLabel) {
+            const monthAbbr = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+            const [mon, yy] = String(periodLabel).split('-');
+            const mIdx = monthAbbr.indexOf(mon);
+            const yearNum = 2000 + parseInt(yy, 10);
+            const startYear = mIdx >= 6 ? yearNum : yearNum - 1; // Jul(6)..Dec(11) same year, Jan(0)..Jun(5) previous year
+            return {
+                startLabel: 'Jul-' + String(startYear).slice(-2),
+                endLabel:   'Jun-' + String(startYear + 1).slice(-2)
+            };
+        }
+
         function populateYearlyBudgetVarianceTable(selectedIndex) {
             const tableBody = document.querySelector('#yearly-budget-variance-table tbody');
             tableBody.innerHTML = '';
-            
-            const fiscalYearStartPeriod = 'Jul-25';
+
+            const { startLabel: fiscalYearStartPeriod, endLabel: fiscalYearEndPeriod } =
+                getFiscalYearLabels(months[selectedIndex]);
             let fiscalYearStartIndex = months.indexOf(fiscalYearStartPeriod);
 
             if (fiscalYearStartIndex === -1) {
                 console.warn(`Fiscal Year start period ${fiscalYearStartPeriod} not found. Starting YTD Actuals from index 0.`);
                 fiscalYearStartIndex = 0;
             }
-            
-            const fiscalYearEndPeriod = 'Jun-26';
+
             let fiscalYearEndIndex = months.indexOf(fiscalYearEndPeriod);
             if (fiscalYearEndIndex === -1) {
                 fiscalYearEndIndex = expenseData.length - 1;
             }
-            const budgetLoopLimit = Math.min(expenseData.length - 1, fiscalYearEndIndex);
-            
+
             const actualColumns = [1, 2, 3, 4, 5, 6, 7, 8, 9];
             const budgetColumns = [43, 44, 45, 46, 47, 48, 49, 50, 51];
             const totalActualIndex = 10;
-            const totalBudgetIndex = 52; 
+            const totalBudgetIndex = 52;
 
             const ytdActuals = new Array(actualColumns.length).fill(0);
-            const fullYearBudgets = new Array(budgetColumns.length).fill(0); 
             let ytdTotalActual = 0;
-            let fullYearTotalBudget = 0;
 
             for (let i = fiscalYearStartIndex; i <= selectedIndex; i++) {
                 const monthData = expenseData[i];
-                
+
                 actualColumns.forEach((colIndex, j) => {
                     ytdActuals[j] += parseValue(monthData[colIndex]);
                 });
 
                 ytdTotalActual += parseValue(monthData[totalActualIndex]);
             }
-            
-            for (let i = fiscalYearStartIndex; i <= budgetLoopLimit; i++) {
-                const monthData = expenseData[i];
 
-                budgetColumns.forEach((colIndex, j) => {
-                    fullYearBudgets[j] += parseValue(monthData[budgetColumns[j]]);
-                });
-
-                fullYearTotalBudget += parseValue(monthData[totalBudgetIndex]);
-            }
+            // Annual budget = this month's monthly budget × 12 (fiscal year budgets are
+            // set as a flat monthly figure, not summed across however many months
+            // happen to have actuals entered so far).
+            const budgetSourceMonth = expenseData[selectedIndex];
+            const fullYearBudgets = budgetColumns.map(colIndex => parseValue(budgetSourceMonth[colIndex]) * 12);
+            const fullYearTotalBudget = parseValue(budgetSourceMonth[totalBudgetIndex]) * 12;
 
             const expenseCategories = actualColumns.map(index => expenseHeaders[index]);
 
@@ -2452,7 +2461,7 @@
         }
 
         function populateBudgetTimeUtilization(selectedIndex) {
-            const fiscalYearStartPeriod = 'Jul-25';
+            const { startLabel: fiscalYearStartPeriod } = getFiscalYearLabels(months[selectedIndex]);
             const totalFYMonths = 12;
             const fiscalYearStartIndex = months.indexOf(fiscalYearStartPeriod);
 
@@ -2470,22 +2479,13 @@
             const totalActualIndex = 10;
             const totalBudgetIndex = 52;
             let ytdTotalActual = 0;
-            let fullYearTotalBudget = 0;
             
             for (let i = fiscalYearStartIndex; i <= Number(selectedIndex); i++) {
                 ytdTotalActual += parseValue(expenseData[i][totalActualIndex]);
             }
-            
-            const fiscalYearEndPeriod = 'Jun-26';
-            let fiscalYearEndIndex = months.indexOf(fiscalYearEndPeriod);
-            
-            const budgetLoopLimit = (fiscalYearEndIndex !== -1 && fiscalYearEndIndex >= fiscalYearStartIndex) 
-                                    ? fiscalYearEndIndex 
-                                    : expenseData.length - 1;
-            
-            for (let i = fiscalYearStartIndex; i <= budgetLoopLimit; i++) {
-                fullYearTotalBudget += parseValue(expenseData[i][totalBudgetIndex]);
-            }
+
+            // Annual budget = this month's monthly budget × 12 (see populateYearlyBudgetVarianceTable)
+            const fullYearTotalBudget = parseValue(expenseData[selectedIndex][totalBudgetIndex]) * 12;
 
             const budgetUtilized = (ytdTotalActual / (fullYearTotalBudget || 1)) * 100;
 
@@ -2616,6 +2616,23 @@
         // 10=GBD3 exp, 11=PHC exp, 12=Citi shared exp, 13=Total exp, 15=Balance Gates,
         // 19=Citi bal, 20=Citi invest, 21=OCBC, 22=Total funds,
         // 26=GBD3 funds, 27=PHC funds, 28=RADS own, 31=DrAdnan, 32=DrAyesha, 33=RADS US
+        // Turns "426,455", "$426,455.00", "(1,234)" etc into real numbers.
+        // Google's gviz CSV export sometimes returns the *display* format of a
+        // cell rather than the raw value, so plain typeof-number checks miss these.
+        function cleanNum(v) {
+            if (typeof v === 'number' && !isNaN(v)) return v;
+            if (typeof v !== 'string') return null;
+            let s = v.trim();
+            if (s === '' || s === '-' || s === '—') return null;
+            const neg = /^\(.*\)$/.test(s);
+            if (neg) s = s.slice(1, -1);
+            s = s.replace(/[$,%\s]/g, '');
+            if (!/^-?\d+(\.\d+)?$/.test(s)) return null;
+            const n = parseFloat(s);
+            if (isNaN(n)) return null;
+            return neg ? -n : n;
+        }
+
         function extractFundsFromRows(rows, label) {
             // Sheet range is B1:M70 (col A unused), so XLSX.sheet_to_json
             // returns arrays where: idx0=colB (headers), idx1=colC (labels), idx2=colD (values)
@@ -2624,9 +2641,11 @@
             let valCol = 2; // default: col D = index 2 when sheet starts at B
             let lblCol = 1; // col C = index 1
             // Auto-detect: scan first 10 rows for a number to find actual value column
+            // (checks both real numbers and formatted numeric strings like "426,455")
             for (const r of rows.slice(0, 35)) {
                 for (let c = 1; c <= 5; c++) {
-                    if (typeof r[c] === 'number' && !isNaN(r[c]) && r[c] > 100) {
+                    const n = cleanNum(r[c]);
+                    if (n !== null && n > 100) {
                         valCol = c;
                         lblCol = c - 1;
                         break;
@@ -2638,16 +2657,14 @@
             function rv(rowNum) {
                 const r = rows[rowNum - 1]; // convert to 0-index
                 if (!r) return null;
-                const v = r[valCol];
-                return (typeof v === 'number' && !isNaN(v)) ? v : null;
+                return cleanNum(r[valCol]);
             }
             // Fallback: keyword scan across all rows
             function kw(keywords) {
                 for (const r of rows) {
                     const lbl = String(r[lblCol] || r[lblCol-1] || r[lblCol+1] || '').trim().toLowerCase();
                     if (lbl && keywords.every(k => lbl.includes(k.toLowerCase()))) {
-                        const v = r[valCol];
-                        return (typeof v === 'number' && !isNaN(v)) ? v : null;
+                        return cleanNum(r[valCol]);
                     }
                 }
                 return null;
@@ -2685,6 +2702,14 @@
                     .filter(v => v !== null);
                 d.available.totalFunds = s.length ? s.reduce((a,b)=>a+b,0) : null;
             }
+            // Reject sheets with no real data at all (e.g. a candidate month
+            // that doesn't have a tab — Google can return a harmless empty/
+            // error response for those instead of a clean 404).
+            const hasSignal = [
+                d.donors.totalReceived, d.donors.totalExpense, d.donors.balanceFunds,
+                d.available.totalFunds, d.breakdown.radsOwn
+            ].some(v => v !== null && v !== undefined);
+            if (!hasSignal) return null;
             return d;
         }
 
@@ -2734,6 +2759,7 @@
                     if (!res.ok) return; // tab doesn't exist for that month
                     const text = await res.text();
                     if (!text || text.trim().startsWith('<')) return; // Google's HTML error page
+                    if (text.includes('"status":"error"') || text.trim().startsWith(")]}'")) return; // gviz error JSON (sheet name not found)
                     const result = Papa.parse(text.trim(), { dynamicTyping: true });
                     const rows = result.data;
                     if (!rows || !rows.length) return;
