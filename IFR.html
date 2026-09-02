@@ -195,13 +195,13 @@
             align-items: center;
             margin-bottom: 20px;
             padding: 15px;
-            background: #eee;
+            background: #860111;
             border-radius: 12px;
-            border: 1px solid #e0e0e0;
+            border: 1px solid #6d0d1e;
         }
 
         .controls label {
-            color: #333;
+            color: #fff;
             margin-right: 10px;
             font-size: 1.1em;
             font-weight: bold;
@@ -325,12 +325,12 @@
         }
         
         th {
-            background-color: #f2f2f2;
-            color: #333;
+            background-color: #860111;
+            color: #fff;
             font-weight: bold;
             padding: 12px 15px;
             text-align: left;
-            border-bottom: 1px solid #ddd;
+            border-bottom: 1px solid #6d0d1e;
         }
         
         td {
@@ -388,6 +388,13 @@
         .metric-label {
             color: #999;
             font-size: 1em;
+        }
+
+        #budget-utilization-card .metric-value,
+        #time-utilization-card .metric-value,
+        #budget-utilization-card .metric-label,
+        #time-utilization-card .metric-label {
+            color: #fff;
         }
 
         .metric-grid {
@@ -929,6 +936,7 @@
                     </div>
                 </div>
                 <div class="header-right">
+                    <span class="header-badge">IFR Dashboard</span>
                     <span class="header-live">● Live</span>
                     <button id="refresh-btn" onclick="fetchFromGoogleSheets()">🔄 Refresh Data</button>
                 </div>
