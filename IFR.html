@@ -359,8 +359,8 @@
         }
 
         .metric-card {
-            background: #f4f4f4;
-            border: 1px solid #e5e5e5;
+            background: #eaeaea;
+            border: 1px solid #dcdcdc;
             color: #1a1a1a;
             border-radius: 10px;
             padding: 20px;
@@ -370,13 +370,18 @@
         }
 
         .metric-card:hover {
-            background: #ececec;
+            background: #e0e0e0;
         }
 
         .metric-card.metric-neg { background: #860111; border-color: #860111; }
         .metric-card.metric-neg:hover { background: #6d0d1e; }
         .metric-card.metric-neg .metric-value { color: #fff; }
         .metric-card.metric-neg .metric-label { color: #f0b8bc; }
+
+        .metric-card.metric-pos { background: #1e7e34; border-color: #1e7e34; }
+        .metric-card.metric-pos:hover { background: #196b2c; }
+        .metric-card.metric-pos .metric-value { color: #fff; }
+        .metric-card.metric-pos .metric-label { color: #bfe6c8; }
 
         .metric-value {
             font-size: 2em;
@@ -450,28 +455,27 @@
         }
 
         .breakdown-total {
-            background: linear-gradient(135deg, #363636 0%, #2a2a2a 100%);
-            border-radius: 12px;
-            padding: 25px;
+            background: #fbf3f3;
+            border-radius: 10px;
+            padding: 22px;
             text-align: center;
-            margin-bottom: 25px;
-            border: 2px solid #4a4a4a;
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+            margin-bottom: 20px;
+            border: 1px solid #f0dede;
         }
 
         .breakdown-total-value {
-            font-size: 2.8em;
+            font-size: 2.2em;
             font-weight: bold;
-            color: #fff;
-            margin-bottom: 8px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            color: #860111;
+            margin-bottom: 6px;
+            text-shadow: none;
         }
 
         .breakdown-total-label {
-            font-size: 1.2em;
-            color: #fff;
+            font-size: 0.85em;
+            color: #a34a44;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.6px;
             font-weight: 600;
         }
 
@@ -498,15 +502,16 @@
 
         /* Modal Content */
         .modal-content {
-            background: linear-gradient(135deg, #ab4e52 0%, #8B1538 100%);
+            background: #fff;
             border-radius: 16px;
             max-width: 1000px;
             width: 100%;
             max-height: 90vh;
             overflow-y: auto;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
             animation: slideUp 0.4s ease;
             position: relative;
+            border-top: 5px solid #860111;
         }
 
         @keyframes slideUp {
@@ -524,30 +529,29 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 25px 30px;
-            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+            padding: 22px 28px 16px;
             position: sticky;
             top: 0;
-            background: linear-gradient(135deg, #ab4e52 0%, #8B1538 100%);
+            background: #fff;
             z-index: 10;
         }
 
         .modal-title {
-            color: #fff;
-            font-size: 2em;
+            color: #1a1a1a;
+            font-size: 1.5em;
             margin: 0;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            text-shadow: none;
         }
 
         .modal-close {
-            background: rgba(255, 255, 255, 0.2);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            color: #fff;
-            width: 40px;
-            height: 40px;
+            background: #f2f2f2;
+            border: none;
+            color: #888;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             cursor: pointer;
-            font-size: 24px;
+            font-size: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -556,41 +560,46 @@
         }
 
         .modal-close:hover {
-            background: rgba(255, 255, 255, 0.3);
+            background: #e5e5e5;
             transform: rotate(90deg);
         }
 
         .modal-body {
-            padding: 30px;
+            padding: 4px 28px 28px;
         }
 
         /* Enhanced Table Styling for Modals */
         .modal-content table {
             background: #fff;
-            border-radius: 12px;
+            border-radius: 8px;
             overflow: hidden;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
 
         .modal-content th {
-            background: linear-gradient(135deg, #363636 0%, #2a2a2a 100%);
-            color: #fff;
-            font-weight: 600;
-            padding: 15px;
+            background: transparent;
+            color: #999;
+            font-weight: 700;
+            padding: 10px 15px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            font-size: 0.9em;
+            letter-spacing: 0.4px;
+            font-size: 0.78em;
+            border-bottom: 2px solid #860111;
         }
 
         .modal-content td {
-            padding: 15px;
-            font-size: 1em;
+            padding: 14px 15px;
+            font-size: 0.95em;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .modal-content tbody tr:nth-child(even) {
+            background-color: #fafafa;
         }
 
         .modal-content tbody tr:hover {
-            background-color: #e8e8e8;
-            transform: scale(1.01);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            background-color: #f5f5f5;
+            transform: none;
+            box-shadow: none;
         }
 
         /* Scrollbar Styling for Modal */
@@ -599,17 +608,17 @@
         }
 
         .modal-content::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.1);
+            background: #f2f2f2;
             border-radius: 10px;
         }
 
         .modal-content::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.3);
+            background: #ccc;
             border-radius: 10px;
         }
 
         .modal-content::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.5);
+            background: #999;
         }
 
         @media (max-width: 768px) {
@@ -1466,6 +1475,16 @@
                 <tbody></tbody>
             </table>
         </section>
+
+        <section id="expense-coverage-section" class="section">
+            <h2 class="section-title">Expense Coverage &mdash; Project vs Core</h2>
+            <table id="expense-coverage-table">
+                <thead>
+                    <tr><th>Expense Category</th><th>Total Expense</th><th>Covered by Projects</th><th>Charged to Core</th><th>% Covered by Projects</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </section>
         
         <section id="yearly-budget-variance-section" class="section">
             <h2 class="section-title">Yearly Budget Variance (Annual Comparison)</h2>
@@ -1833,6 +1852,7 @@
                     populateExecutiveSummary(selectedIndex1);
                     populateNarrativeAnalysis(selectedIndex1, selectedIndex2);
                     populateBudgetVarianceTable(selectedIndex1);
+                    populateExpenseCoverageTable(selectedIndex1);
                     populateYearlyBudgetVarianceTable(selectedIndex1);
                     populateBudgetTimeUtilization(selectedIndex1);
                 }
@@ -2403,6 +2423,54 @@
                 <td><b>${formatCurrency(totalActual)}</b></td>
                 <td class="${totalVariance > 0 ? '' : 'positive'}"><b>${formatAbsoluteCurrency(totalVariance)}</b></td>
                 <td><b>${formatPercentage(totalBudgetUtilizedPercent)}</b></td>
+            `;
+            tableBody.appendChild(totalRow);
+        }
+
+        // For each expense category: Total Expense (cols 1-9) minus the amount charged
+        // to Core (cols 63-71, same category order) gives what was covered by projects.
+        function populateExpenseCoverageTable(selectedIndex) {
+            const tableBody = document.querySelector('#expense-coverage-table tbody');
+            tableBody.innerHTML = '';
+
+            const data = expenseData[selectedIndex];
+
+            const totalColumns = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+            const coreColumns  = [63, 64, 65, 66, 67, 68, 69, 70, 71];
+
+            const expenseCategories = totalColumns.map(index => expenseHeaders[index]);
+
+            let sumTotal = 0, sumCore = 0, sumProject = 0;
+
+            expenseCategories.forEach((category, i) => {
+                const total = parseValue(data[totalColumns[i]]);
+                const core = parseValue(data[coreColumns[i]]);
+                const project = total - core;
+                const projectPct = (project / (total || 1)) * 100;
+
+                sumTotal += total;
+                sumCore += core;
+                sumProject += project;
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${category}</td>
+                    <td>${formatCurrency(total)}</td>
+                    <td>${formatCurrency(project)}</td>
+                    <td>${formatCurrency(core)}</td>
+                    <td>${formatPercentage(projectPct)}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+
+            const totalProjectPct = (sumProject / (sumTotal || 1)) * 100;
+            const totalRow = document.createElement('tr');
+            totalRow.innerHTML = `
+                <td><b>Total</b></td>
+                <td><b>${formatCurrency(sumTotal)}</b></td>
+                <td><b>${formatCurrency(sumProject)}</b></td>
+                <td><b>${formatCurrency(sumCore)}</b></td>
+                <td><b>${formatPercentage(totalProjectPct)}</b></td>
             `;
             tableBody.appendChild(totalRow);
         }
