@@ -373,15 +373,15 @@
             background: #e0e0e0;
         }
 
-        .metric-card.metric-neg { background: #860111; border-color: #860111; }
-        .metric-card.metric-neg:hover { background: #6d0d1e; }
-        .metric-card.metric-neg .metric-value { color: #fff; }
-        .metric-card.metric-neg .metric-label { color: #f0b8bc; }
+        .metric-card.metric-neg { background: #eaeaea; border-color: #dcdcdc; }
+        .metric-card.metric-neg:hover { background: #e0e0e0; }
+        .metric-card.metric-neg .metric-value { color: #c62828; }
+        .metric-card.metric-neg .metric-label { color: #999; }
 
-        .metric-card.metric-pos { background: #1e7e34; border-color: #1e7e34; }
-        .metric-card.metric-pos:hover { background: #196b2c; }
-        .metric-card.metric-pos .metric-value { color: #fff; }
-        .metric-card.metric-pos .metric-label { color: #bfe6c8; }
+        .metric-card.metric-pos { background: #eaeaea; border-color: #dcdcdc; }
+        .metric-card.metric-pos:hover { background: #e0e0e0; }
+        .metric-card.metric-pos .metric-value { color: #1e7e34; }
+        .metric-card.metric-pos .metric-label { color: #999; }
 
         .metric-value {
             font-size: 2em;
@@ -455,28 +455,32 @@
         }
 
         .breakdown-total {
-            background: #fbf3f3;
-            border-radius: 10px;
-            padding: 22px;
-            text-align: center;
-            margin-bottom: 20px;
-            border: 1px solid #f0dede;
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            background: transparent;
+            padding: 18px 28px 24px;
+            margin: 0;
+            border: none;
+            border-top: 2px solid #1a1a1a;
         }
 
         .breakdown-total-value {
-            font-size: 2.2em;
-            font-weight: bold;
+            font-size: 1.3em;
+            font-weight: 800;
             color: #860111;
-            margin-bottom: 6px;
+            margin-bottom: 0;
             text-shadow: none;
+            order: 2;
         }
 
         .breakdown-total-label {
-            font-size: 0.85em;
-            color: #a34a44;
-            text-transform: uppercase;
-            letter-spacing: 0.6px;
-            font-weight: 600;
+            font-size: 1.05em;
+            color: #1a1a1a;
+            text-transform: none;
+            letter-spacing: normal;
+            font-weight: 800;
+            order: 1;
         }
 
         /* Modal Overlay */
@@ -511,7 +515,6 @@
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
             animation: slideUp 0.4s ease;
             position: relative;
-            border-top: 5px solid #860111;
         }
 
         @keyframes slideUp {
@@ -529,24 +532,24 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 22px 28px 16px;
+            padding: 22px 28px;
             position: sticky;
             top: 0;
-            background: #fff;
+            background: #860111;
             z-index: 10;
         }
 
         .modal-title {
-            color: #1a1a1a;
+            color: #fff;
             font-size: 1.5em;
             margin: 0;
             text-shadow: none;
         }
 
         .modal-close {
-            background: #f2f2f2;
+            background: rgba(255,255,255,0.15);
             border: none;
-            color: #888;
+            color: #fff;
             width: 32px;
             height: 32px;
             border-radius: 50%;
@@ -560,40 +563,40 @@
         }
 
         .modal-close:hover {
-            background: #e5e5e5;
+            background: rgba(255,255,255,0.25);
             transform: rotate(90deg);
         }
 
         .modal-body {
-            padding: 4px 28px 28px;
+            padding: 4px 0 0;
+            display: flex;
+            flex-direction: column;
         }
+
+        /* Receipt-style: table (line items) shown first, total shown last as a bold closing row */
+        .modal-body > table { order: 1; }
+        .modal-body > .breakdown-total { order: 2; }
 
         /* Enhanced Table Styling for Modals */
         .modal-content table {
             background: #fff;
-            border-radius: 8px;
-            overflow: hidden;
         }
 
         .modal-content th {
             background: transparent;
             color: #999;
             font-weight: 700;
-            padding: 10px 15px;
+            padding: 10px 28px;
             text-transform: uppercase;
             letter-spacing: 0.4px;
             font-size: 0.78em;
-            border-bottom: 2px solid #860111;
+            border-bottom: 2px solid #1a1a1a;
         }
 
         .modal-content td {
-            padding: 14px 15px;
+            padding: 13px 28px;
             font-size: 0.95em;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .modal-content tbody tr:nth-child(even) {
-            background-color: #fafafa;
+            border-bottom: 1px dashed #e0e0e0;
         }
 
         .modal-content tbody tr:hover {
@@ -1019,11 +1022,6 @@
         <section id="executive-summary" class="section">
             <h2 class="section-title">Executive Summary</h2>
             <p id="executive-summary-text"></p>
-        </section>
-
-        <section id="narrative-analysis" class="section">
-            <h2 class="section-title">Narrative Analysis</h2>
-            <p id="narrative-analysis-text"></p>
         </section>
 
         <!-- Income Modal -->
@@ -1466,14 +1464,9 @@
             </table>
         </section>
 
-        <section id="budget-variance-section" class="section">
-            <h2 class="section-title">Monthly Budget Variance</h2>
-            <table id="budget-variance-table" class="budget-variance-table">
-                <thead>
-                    <tr><th>Expense Category</th><th>Budget</th><th>Actual</th><th>Variance</th><th>% Utilization</th></tr>
-                </thead>
-                <tbody></tbody>
-            </table>
+        <section id="narrative-analysis" class="section">
+            <h2 class="section-title">Narrative Analysis</h2>
+            <p id="narrative-analysis-text"></p>
         </section>
 
         <section id="expense-coverage-section" class="section">
@@ -1485,7 +1478,17 @@
                 <tbody></tbody>
             </table>
         </section>
-        
+
+        <section id="budget-variance-section" class="section">
+            <h2 class="section-title">Monthly Budget Variance</h2>
+            <table id="budget-variance-table" class="budget-variance-table">
+                <thead>
+                    <tr><th>Expense Category</th><th>Budget</th><th>Actual</th><th>Variance</th><th>% Utilization</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </section>
+
         <section id="yearly-budget-variance-section" class="section">
             <h2 class="section-title">Yearly Budget Variance (Annual Comparison)</h2>
             <table id="yearly-budget-variance-table" class="yearly-budget-variance-table">
