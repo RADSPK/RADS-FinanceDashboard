@@ -305,6 +305,32 @@
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
         }
 
+        /* Accordion */
+        .accordion-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+            margin-bottom: 15px;
+        }
+        .accordion-header .section-title {
+            margin-bottom: 0;
+        }
+        .accordion-chevron {
+            color: #860111;
+            font-size: 0.6em;
+            transition: transform 0.2s ease;
+            flex-shrink: 0;
+            margin-left: 14px;
+        }
+        .accordion-body {
+            overflow: hidden;
+        }
+        .accordion-body.collapsed {
+            display: none;
+        }
+
         .chart-container {
             width: 100%;
             height: 400px;
@@ -974,7 +1000,11 @@
         </div>
 
         <section id="key-metrics" class="section">
-            <h2 class="section-title">Key Performance Indicators</h2>
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                <h2 class="section-title">Key Performance Indicators</h2>
+                <span class="accordion-chevron">&#9662;</span>
+            </div>
+            <div class="accordion-body">
             <div class="metric-grid">
                 <div class="metric-card" id="income-card">
                     <div id="total-income-metric" class="metric-value"></div>
@@ -1017,11 +1047,17 @@
                     <div class="metric-label">Equity</div>
                 </div>
             </div>
+            </div>
         </section>
 
         <section id="executive-summary" class="section">
-            <h2 class="section-title">Executive Summary</h2>
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                <h2 class="section-title">Executive Summary</h2>
+                <span class="accordion-chevron">&#9662;</span>
+            </div>
+            <div class="accordion-body">
             <p id="executive-summary-text"></p>
+            </div>
         </section>
 
         <!-- Income Modal -->
@@ -1455,52 +1491,81 @@
         </section>
 
         <section id="comparison-section" class="section">
-            <h2 class="section-title">Month-over-Month Comparison</h2>
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                <h2 class="section-title">Month-over-Month Comparison</h2>
+                <span class="accordion-chevron">&#9662;</span>
+            </div>
+            <div class="accordion-body">
             <table id="comparison-table" class="comparison-table">
                 <thead>
                     <tr><th>Metric</th><th id="comparison-header-1"></th><th id="comparison-header-2"></th><th>Change</th><th>% Change</th></tr>
                 </thead>
                 <tbody></tbody>
             </table>
+            </div>
         </section>
 
         <section id="narrative-analysis" class="section">
-            <h2 class="section-title">Narrative Analysis</h2>
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                <h2 class="section-title">Narrative Analysis</h2>
+                <span class="accordion-chevron">&#9662;</span>
+            </div>
+            <div class="accordion-body">
             <p id="narrative-analysis-text"></p>
+            </div>
         </section>
 
         <section id="expense-coverage-section" class="section">
-            <h2 class="section-title">Expense Coverage &mdash; Project vs Core</h2>
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                <h2 class="section-title">Expense Coverage &mdash; Project vs Core</h2>
+                <span class="accordion-chevron">&#9656;</span>
+            </div>
+            <div class="accordion-body collapsed">
             <table id="expense-coverage-table">
                 <thead>
                     <tr><th>Expense Category</th><th>Total Expense</th><th>Covered by Projects</th><th>Charged to Core</th><th>% Covered by Projects</th></tr>
                 </thead>
                 <tbody></tbody>
             </table>
+            </div>
         </section>
 
         <section id="budget-variance-section" class="section">
-            <h2 class="section-title">Monthly Budget Variance</h2>
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                <h2 class="section-title">Monthly Budget Variance</h2>
+                <span class="accordion-chevron">&#9656;</span>
+            </div>
+            <div class="accordion-body collapsed">
             <table id="budget-variance-table" class="budget-variance-table">
                 <thead>
                     <tr><th>Expense Category</th><th>Budget</th><th>Actual</th><th>Variance</th><th>% Utilization</th></tr>
                 </thead>
                 <tbody></tbody>
             </table>
+            </div>
         </section>
 
         <section id="yearly-budget-variance-section" class="section">
-            <h2 class="section-title">Yearly Budget Variance (Annual Comparison)</h2>
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                <h2 class="section-title">Yearly Budget Variance (Annual Comparison)</h2>
+                <span class="accordion-chevron">&#9656;</span>
+            </div>
+            <div class="accordion-body collapsed">
             <table id="yearly-budget-variance-table" class="yearly-budget-variance-table">
                 <thead>
                     <tr><th>Expense Category</th><th>Full Year Budget</th><th>YTD Actual</th><th>Variance vs. Full Year</th><th>% Utilization (YTD/FY)</th></tr>
                 </thead>
                 <tbody></tbody>
             </table>
+            </div>
         </section>
 
         <section id="budget-time-utilization-section" class="section">
-            <h2 class="section-title">Budget and Time Utilization (YTD)</h2>
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                <h2 class="section-title">Budget and Time Utilization (YTD)</h2>
+                <span class="accordion-chevron">&#9656;</span>
+            </div>
+            <div class="accordion-body collapsed">
             <div class="metric-grid">
                 <div class="metric-card" id="budget-utilization-card">
                     <div id="budget-utilization-metric" class="metric-value"></div>
@@ -1510,6 +1575,7 @@
                     <div id="time-utilization-metric" class="metric-value"></div>
                     <div class="metric-label">Total Time Utilized</div>
                 </div>
+            </div>
             </div>
         </section>
 
@@ -1710,9 +1776,13 @@
             if (stringValue === '-' || stringValue === '') {
                 return 0;
             }
-            const cleanedValue = stringValue.replace(/,/g, '');
+            // Handle accounting negatives "(1,234)", unicode minus, trailing minus, currency text
+            let neg = /^\(.*\)$/.test(stringValue) || /^[-\u2212\u2013]/.test(stringValue.replace(/^[^\d(\-\u2212\u2013.]*/, '')) || /\d\s*-$/.test(stringValue);
+            const cleanedValue = stringValue.replace(/[^\d.]/g, '');
+            if (cleanedValue === '' || cleanedValue === '.') return 0;
             const num = Number(cleanedValue);
-            return isNaN(num) ? 0 : num;
+            if (isNaN(num)) return 0;
+            return (neg && num !== 0) ? -Math.abs(num) : num;
         }
 
         function formatCurrency(value) {
@@ -2658,6 +2728,13 @@
         // ============================================================
         // MAIN TAB SWITCHING
         // ============================================================
+        function toggleAccordion(headerEl) {
+            const body = headerEl.nextElementSibling;
+            const chevron = headerEl.querySelector('.accordion-chevron');
+            body.classList.toggle('collapsed');
+            chevron.textContent = body.classList.contains('collapsed') ? '\u25B8' : '\u25BE';
+        }
+
         function switchMainTab(tabId) {
             document.querySelectorAll('.main-tab-content').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.main-tab-btn').forEach(b => b.classList.remove('active'));
